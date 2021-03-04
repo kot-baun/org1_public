@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Compact</fullName>
+    <fields>Vehicle_model_description__c</fields>
+    <fields>Vehicle_Type__c</fields>
+    <fields>Vehicle_plate_number__c</fields>
+    <fields>Vehicle_Status__c</fields>
+    <label>Compact</label>
+</CompactLayout>

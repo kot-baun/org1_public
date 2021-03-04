@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Truck</fullName>
+    <active>true</active>
+    <label>Truck</label>
+    <picklistValues>
+        <picklist>Vehicle_Status__c</picklist>
+        <values>
+            <fullName>At Service</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Available</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not Available</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Vehicle_Type__c</picklist>
+        <values>
+            <fullName>Truck</fullName>
+            <default>true</default>
+        </values>
+    </picklistValues>
+</RecordType>

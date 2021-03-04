@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>TX_plate_number</fullName>
+    <active>true</active>
+    <description>Plate number should contain or start with  &quot;TX&quot;   (Texas plate)</description>
+    <errorConditionFormula>OR(NOT CONTAINS( Vehicle_plate_number__c , &quot;TX&quot;), ISBLANK(Vehicle_plate_number__c))</errorConditionFormula>
+    <errorDisplayField>OwnerId</errorDisplayField>
+    <errorMessage>we are waiting for TX plate numbers</errorMessage>
+</ValidationRule>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Maintenance_Service_Total__c</fullName>
+    <description>Show the total number of Maintenance records for each service</description>
+    <externalId>false</externalId>
+    <label>Maintenance Service Total Reconrds</label>
+    <summaryForeignKey>Maintenance__c.Maintenance_Service__c</summaryForeignKey>
+    <summaryOperation>count</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>
