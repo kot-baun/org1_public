@@ -1,0 +1,4 @@
+SELECT Id
+  FROM Maintenance_Service__c
+  WHERE Maintenance_default__c = True
+  LIMIT 1

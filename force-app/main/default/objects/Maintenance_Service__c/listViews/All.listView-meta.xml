@@ -7,6 +7,7 @@
     <columns>Maintenance_Geolocation__Longitude__s</columns>
     <columns>CREATEDBY_USER</columns>
     <columns>Maintenance_Service_Total__c</columns>
+    <columns>Maintenance_default__c</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>
 </ListView>
