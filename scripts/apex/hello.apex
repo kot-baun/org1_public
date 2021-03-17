@@ -35,11 +35,6 @@ Maintenance_Service__c defaultServiecs = [
 	LIMIT 1
 ];
 
-for (Integer i = 0; i < 5; i++) {
-        System.debug(i);
-        if(3 == i)
-        
-}
 // Schema.DescribeFieldResult F = Maintenance__c.Maintenance_status__c.getDescribe();
 // List<Schema.PicklistEntry> P = F.getPicklistValues();
 
