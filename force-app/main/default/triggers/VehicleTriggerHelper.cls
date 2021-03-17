@@ -1,31 +1,33 @@
 public class VehicleTriggerHelper {
 	//resources
-	static Map<Id, Vehicle__c> targetVehicles = new Map<Id, Vehicle__c>();
-	static List<Maintenance__c> targetMaintenances = new List<Maintenance__c>();
-	static Map<Contact, String> targetDrivers = new Map<Contact, String>();
+	public static List<Vehicle__c> targetVehicles = new List<Vehicle__c>();
+	public static List<Maintenance__c> targetMaintenances = new List<Maintenance__c>();
+	public static Map<Contact, String> targetDrivers = new Map<Contact, String>();
 
 	public static final String MESSAGE_NEW_MAINTENANCE = 'new_mainanace';
 	static final String MESSAGE_NEW_MAINTENANCE_BODY = 'New maintenance is scheduled for vehicle {0} from {1} to {2}';
 	public static final String MESSAGE_STATUS_CHANGE = 'status_change';
+	public static final String DATE_VALIDATION_ERROR =
+		'Date validation error at the object Vehicle with ID {0} and description {1}.' +
+		'The next maintenance date must be hightrer than the last maintenance date, but the last maintemamce date is {2} and the next is {3}';
 
 	/**
 	 * filter and validate values for the new maintenance process and update their Last Maintenance Date value
 	 */
-	public static void prepeareVehicleData(Map<Id, Vehicle__c> oldMap, Map<Id, Vehicle__c> newMap) {
-		for (Vehicle__c vehicle : newMap.values()) {
-			Vehicle__c oldVehicle = oldMap.get(vehicle.Id);
-			//filter
+	public static void prepeareVehicleData(List<Vehicle__c> oldList, List<Vehicle__c> newList) {
+		for (Vehicle__c vehicle : newList) {
+			Vehicle__c oldVehicle = oldList.get(oldList.indexOf(vehicle));
+
+			//filter, Next Maintenance Date is under update
 			if (vehicle.Vehicle_Next_Maintenance_Date__c != oldVehicle.Vehicle_Next_Maintenance_Date__c) {
-				//validate
+				//validate, Next Maintenance Date is on the future
 				if (vehicle.Vehicle_Last_Maintenance_Date__c < oldVehicle.Vehicle_Next_Maintenance_Date__c) {
 					//update
 					vehicle.Vehicle_Last_Maintenance_Date__c = oldVehicle.Vehicle_Next_Maintenance_Date__c;
-					targetVehicles.put(vehicle.Id, vehicle);
+					targetVehicles.add(vehicle);
 				} else {
 					String errMsg = String.format(
-						'Date validation error at the object Vehicle with ID {0} ' +
-						'and description {1}. The next maintenance date must be hightrer than the last maintenance date, ' +
-						'but the last maintemamce date is {2} and the next is {3}',
+						DATE_VALIDATION_ERROR,
 						new List<Object>{
 							vehicle.Id,
 							vehicle.Vehicle_model_description__c,
@@ -33,7 +35,7 @@ public class VehicleTriggerHelper {
 							vehicle.Vehicle_Next_Maintenance_Date__c
 						}
 					);
-					System.debug(LoggingLevel.ERROR, errMsg);
+					Trigger.new.get(newList.indexOf(vehicle)).addError(errMsg);
 				}
 			}
 		}
@@ -52,7 +54,7 @@ public class VehicleTriggerHelper {
 		];
 
 		//todo try-catch, read about
-		for (Vehicle__c vehicle : targetVehicles.values()) {
+		for (Vehicle__c vehicle : targetVehicles) {
 			Maintenance__c tmp = new Maintenance__c();
 			tmp.Maintenance_from_date__c = vehicle.Vehicle_Next_Maintenance_Date__c;
 			tmp.Maintenance_Service__c = vehicle.Vehicle_Last_Maintenance__c == null
@@ -69,7 +71,7 @@ public class VehicleTriggerHelper {
 	 * generate e-mail message to the valide drivers
 	 */
 	public static void prepeareDriversData(String type) {
-		for (Vehicle__c vehicle : targetVehicles.values()) {
+		for (Vehicle__c vehicle : targetVehicles) {
 			Contact driver = vehicle.Vehicle_driver__r;
 			if (null == driver || driver.Email == '') {
 				continue;
@@ -152,6 +154,6 @@ public class VehicleTriggerHelper {
 	}
 
 	public static void saveTargetVehicleRecords() {
-		insert targetVehicles.values();
+		insert targetVehicles;
 	}
 }
