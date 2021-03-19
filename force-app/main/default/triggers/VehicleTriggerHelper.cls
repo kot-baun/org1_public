@@ -12,44 +12,12 @@ public class VehicleTriggerHelper {
 		'The next maintenance date must be hightrer than the last maintenance date, but the last maintemamce date is {2} and the next is {3}';
 
 	/**
+	 * applied during the update process
 	 * filter and validate values for the new maintenance process and update their Last Maintenance Date value
-	 
-	public static void prepeareVehicleData(List<Vehicle__c> oldList, List<Vehicle__c> newList) {
-		System.debug(
-			String.format('oldList sizw {0}  newList size {1}', new List<Object>{ oldList.size(), newList.size() })
-		);
+	 * valid values are stored in a static context
+	 */
 
-		for (Vehicle__c newVehicle : newList) {
-			System.debug('new vehicle ' + newVehicle);
-
-			Vehicle__c oldVehicle = oldList.get(oldList.indexOf(newVehicle));
-			System.debug('old vehicle ' + oldVehicle);
-			//filter, Next Maintenance Date is under update
-			if (newVehicle.Vehicle_Next_Maintenance_Date__c != oldVehicle.Vehicle_Next_Maintenance_Date__c) {
-				//validate, Next Maintenance Date is on the future
-				if (newVehicle.Vehicle_Last_Maintenance_Date__c < oldVehicle.Vehicle_Next_Maintenance_Date__c) {
-					//update
-					newVehicle.Vehicle_Last_Maintenance_Date__c = oldVehicle.Vehicle_Next_Maintenance_Date__c;
-					targetVehicles.add(newVehicle);
-				} else {
-					String errMsg = String.format(
-						DATE_VALIDATION_ERROR,
-						new List<Object>{
-							newVehicle.Id,
-							newVehicle.Vehicle_model_description__c,
-							newVehicle.Vehicle_Last_Maintenance_Date__c,
-							newVehicle.Vehicle_Next_Maintenance_Date__c
-						}
-					);
-					// Trigger.new.get(newList.indexOf(vehicle)).addError(errMsg);
-					System.debug(errMsg);
-				}
-			}
-		}
-	}
-	*/
-
-	public static void prepeareVehicleData_2(Map<Id, Vehicle__c> oldMap, map<Id, Vehicle__c> newMap) {
+	public static void validateVehicleData(Map<Id, Vehicle__c> oldMap, map<Id, Vehicle__c> newMap) {
 		// System.debug(
 		// 	String.format('oldList sizw {0}  newList size {1}', new List<Object>{ oldMap.size(), newMap.size() })
 		// );
@@ -82,6 +50,33 @@ public class VehicleTriggerHelper {
 			System.debug(errMsg);
 		}
 	}
+	/**
+	 * applied during the insert process
+	 * filter and validate values for the new maintenance process
+	 * valid values are stored in a static context
+	 */
+	public static void validateVehicleData(Map<Id, Vehicle__c> newMap) {
+		for (Vehicle__c newVehicle : newMap.values()) {
+			//validate, Next Maintenance Date is on the future
+			if (newVehicle.Vehicle_Last_Maintenance_Date__c < newVehicle.Vehicle_Next_Maintenance_Date__c) {
+				targetVehicles.put(newVehicle.Id, newVehicle);
+				continue;
+			}
+
+			String errMsg = String.format(
+				DATE_VALIDATION_ERROR,
+				new List<Object>{
+					newVehicle.Id,
+					newVehicle.Vehicle_model_description__c,
+					newVehicle.Vehicle_Last_Maintenance_Date__c,
+					newVehicle.Vehicle_Next_Maintenance_Date__c
+				}
+			);
+			// Trigger.new.get(newList.indexOf(vehicle)).addError(errMsg);
+			System.debug(errMsg);
+		}
+	}
+
 	/**
 	 * crate maintenance objects according to task
 	 */
@@ -157,7 +152,9 @@ public class VehicleTriggerHelper {
 		for (Maintenance__c maintenance : targetMaintenances) {
 			System.debug('maintenance ' + maintenance + ' due ' + maintenance.Maintenance_due_date__c);
 		}
-		// Database.update(targetVehicles.values(), true);
+
+		//read doc, noobe
+		// Database.insert(targetVehicles.values(), true);
 	}
 
 	/**

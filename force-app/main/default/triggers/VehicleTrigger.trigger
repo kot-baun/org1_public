@@ -15,10 +15,9 @@ trigger VehicleTrigger on Vehicle__c(after insert, after update) {
 	if (Trigger.isAfter) {
 		//newMap doesn't exist in insert
 		if (Trigger.isInsert) {
-			System.debug('point 1');
+			VehicleTriggerHandler.insertVehicleProcess(Trigger.newMap);
 		} else if (Trigger.isUpdate) {
-			VehicleTriggerHandler.updateVehicleProcess(Trigger.old, Trigger.new);
-			System.debug('point 1');
+			VehicleTriggerHandler.onNextMaintenanceUpdate(Trigger.oldMap, Trigger.newMap);
 		}
 	}
 }

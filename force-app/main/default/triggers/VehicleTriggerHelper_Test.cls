@@ -1,7 +1,7 @@
 @isTest
 public with sharing class VehicleTriggerHelper_Test {
 	@isTest
-	private static void prepeareVehicleData_test() {
+	private static void validateVehicleData_test() {
 		//--------------------------     begin data generation     --------------------------
 		List<Vehicle__c> oldList = VehicleTriggerHelper_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
@@ -58,7 +58,7 @@ public with sharing class VehicleTriggerHelper_Test {
 			newMap.put(v.Id, v);
 		}
 
-		VehicleTriggerHelper.prepeareVehicleData_2(oldMap, newMap);
+		VehicleTriggerHelper.validateVehicleData(oldMap, newMap);
 		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles.values()) {
 			System.debug(vehicle);
 		}
@@ -160,7 +160,7 @@ public with sharing class VehicleTriggerHelper_Test {
 			newVehicleMap.put(v.Id, v);
 		}
 		List<Maintenance_Service__c> newMaintenanceServiceList = new List<Maintenance_Service__c>{
-			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, false)
+			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, true)
 		};
 		insert newMaintenanceServiceList;
 
