@@ -2,7 +2,7 @@
 public with sharing class VehicleTriggerHelper_Test {
 	@isTest
 	private static void prepeareVehicleData_test() {
-		//Prepare data
+		//--------------------------     begin data generation     --------------------------
 		List<Vehicle__c> oldList = VehicleTriggerHelper_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
@@ -12,11 +12,11 @@ public with sharing class VehicleTriggerHelper_Test {
 			new List<Integer>{ 0, 0, 0, 0 }
 		);
 		Database.insert(oldList);
-		System.debug('-----------------------------------------------------------------------------');
-		System.debug('old list size ' + oldList.size());
-		for (Vehicle__c vehicle : oldList) {
-			System.debug(vehicle);
-		}
+		// System.debug('-----------------------------------------------------------------------------');
+		// System.debug('old list size ' + oldList.size());
+		// for (Vehicle__c vehicle : oldList) {
+		// 	System.debug(vehicle);
+		// }
 		List<Vehicle__c> newList = VehicleTriggerHelper_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
@@ -27,26 +27,26 @@ public with sharing class VehicleTriggerHelper_Test {
 		);
 
 		Database.insert(newList);
-		System.debug('new list size' + newList.size());
-		for (Vehicle__c vehicle : newList) {
-			System.debug(vehicle);
-		}
-		System.debug('-----------------------------------------------------------------------------');
+		// System.debug('new list size' + newList.size());
+		// for (Vehicle__c vehicle : newList) {
+		// 	System.debug(vehicle);
+		// }
+		// System.debug('-----------------------------------------------------------------------------');
 
 		for (Integer i = 0; i < oldList.size(); i++) {
 			newList.get(i).Id = oldList.get(i).Id;
 		}
 
-		System.debug('--------------------     after     ------------------------------------');
-		System.debug('old list size ' + oldList.size());
-		for (Vehicle__c vehicle : oldList) {
-			System.debug(vehicle);
-		}
-		System.debug('new list size' + newList.size());
-		for (Vehicle__c vehicle : newList) {
-			System.debug(vehicle);
-		}
-		System.debug('-----------------------------------------------------------------------------');
+		// System.debug('--------------------     after     ------------------------------------');
+		// System.debug('old list size ' + oldList.size());
+		// for (Vehicle__c vehicle : oldList) {
+		// 	System.debug(vehicle);
+		// }
+		// System.debug('new list size' + newList.size());
+		// for (Vehicle__c vehicle : newList) {
+		// 	System.debug(vehicle);
+		// }
+		// System.debug('-----------------------------------------------------------------------------');
 
 		Map<Id, Vehicle__c> oldMap = new Map<Id, Vehicle__c>();
 		for (Vehicle__c v : oldList) {
@@ -62,7 +62,7 @@ public with sharing class VehicleTriggerHelper_Test {
 		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles.values()) {
 			System.debug(vehicle);
 		}
-		//TODO hardcode
+		//TODO hardcode 2?
 		System.assertEquals(2, VehicleTriggerHelper.targetVehicles.size());
 	}
 	/**
