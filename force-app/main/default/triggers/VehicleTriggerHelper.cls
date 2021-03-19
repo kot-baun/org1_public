@@ -5,7 +5,7 @@ public class VehicleTriggerHelper {
 	public static Map<Contact, String> targetDrivers = new Map<Contact, String>();
 
 	public static final String MESSAGE_NEW_MAINTENANCE = 'new_mainanace';
-	static final String MESSAGE_NEW_MAINTENANCE_BODY = 'New maintenance is scheduled for vehicle {0} from {1} to {2}';
+	public static final String MESSAGE_NEW_MAINTENANCE_BODY = 'New maintenance is scheduled for vehicle {0} from {1} to {2} date';
 	public static final String MESSAGE_STATUS_CHANGE = 'status_change';
 	public static final String DATE_VALIDATION_ERROR =
 		'Date validation error at the object Vehicle with ID {0} and description {1}.' +
@@ -144,13 +144,20 @@ public class VehicleTriggerHelper {
 		for (Vehicle__c vehicle : targetVehicles.values()) {
 			for (Maintenance__c maintenance : targetMaintenances) {
 				if (maintenance.Vehicle__c == vehicle.Id) {
+					// Maintenance__c mmm = vehicle.Vehicle_Last_Maintenance__r;
 					vehicle.Vehicle_Last_Maintenance__c = maintenance.Id;
 				}
 			}
 		}
+		System.debug('size map ' + targetVehicles.size() + 'size list ' + targetVehicles.values().size());
 
-		// update targetMaintenances;
-		update targetVehicles.values();
+		for (Vehicle__c vehicle : targetVehicles.values()) {
+			System.debug('vehicle ' + vehicle.Id + ' maintenance ' + vehicle.Vehicle_Last_Maintenance__c);
+		}
+		for (Maintenance__c maintenance : targetMaintenances) {
+			System.debug('maintenance ' + maintenance + ' due ' + maintenance.Maintenance_due_date__c);
+		}
+		// Database.update(targetVehicles.values(), true);
 	}
 
 	/**
@@ -160,11 +167,15 @@ public class VehicleTriggerHelper {
 	public static void prepeareDriversData(String type) {
 		for (Vehicle__c vehicle : targetVehicles.values()) {
 			Contact driver = vehicle.Vehicle_driver__r;
-			if (null == driver || driver.Email == '') {
+			if (null == driver || null == driver.Email) {
+				System.debug('continue');
 				continue;
 			}
+			System.debug('before');
+			//TODO case, when one driver for two vehicles
 			String msg = '';
 			if (type == MESSAGE_NEW_MAINTENANCE) {
+				System.debug('in process');
 				msg = String.format(
 					MESSAGE_NEW_MAINTENANCE_BODY,
 					new List<Object>{
@@ -174,17 +185,20 @@ public class VehicleTriggerHelper {
 					}
 				);
 			}
+
+			System.debug('done');
 			if (type == MESSAGE_STATUS_CHANGE) {
 				//TODO
 			}
 
-			if (msg.length() > 0)
+			if (msg.length() > 0) {
 				targetDrivers.put(driver, msg);
+			}
 		}
 	}
 
-	public static void sendMessageToDrivers() {
-		List<Messaging.SingleEmailMessage> mailToSent = new List<Messaging.SingleEmailMessage>(targetDrivers.size());
+	public static List<Messaging.SendEmailResult> sendMessageToDrivers() {
+		List<Messaging.SingleEmailMessage> mailToSent = new List<Messaging.SingleEmailMessage>();
 		for (Contact driver : targetDrivers.keySet()) {
 			Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
 			String[] toAddresses = new List<String>{ driver.Email };
@@ -192,28 +206,12 @@ public class VehicleTriggerHelper {
 			mail.setSubject('Vehicle manage - email to driver');
 			mail.setPlainTextBody(targetDrivers.get(driver));
 			mailToSent.add(mail);
+			System.debug(mail);
 		}
 
-		Messaging.SendEmailResult[] results = Messaging.sendEmail(mailToSent);
+		List<Messaging.SendEmailResult> results = Messaging.sendEmail(mailToSent);
 		inspectResults(results);
-	}
-
-	// Public method
-	void sendMail(String address, String subject, String body) {
-		// Create an email message object
-		Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-		String[] toAddresses = new List<String>{ address };
-		mail.setToAddresses(toAddresses);
-		mail.setSubject(subject);
-		mail.setPlainTextBody(body);
-		// Pass this email message to the built-in sendEmail method
-		// of the Messaging class
-
-		//!!!! List
-		Messaging.SendEmailResult[] results = Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
-
-		// Call a helper method to inspect the returned results
-		inspectResults(results);
+		return results;
 	}
 
 	// Helper method

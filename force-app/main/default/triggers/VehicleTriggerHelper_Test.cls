@@ -142,21 +142,23 @@ public with sharing class VehicleTriggerHelper_Test {
 	 *
 	 */
 	@isTest
-	private static void assignMaintenanceToVehicleAndSave() {
+	private static void assignMaintenanceToVehicleAndSave_test() {
 		List<Vehicle__c> newVehicleList = VehicleTriggerHelper_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
 			new List<String>{ 'Available' },
 			new List<Integer>{ 0 },
-			new List<Integer>{ 1, 2 }
+			new List<Integer>{ 12 }
 		);
 		insert newVehicleList;
+		// Map<Id, Vehicle__c> newVehicleMap = new Map<Id, Vehicle__c>(
+		// 	[SELECT ID, Vehicle_Last_Maintenance__c FROM Vehicle__c]
+		// );
 		Map<Id, Vehicle__c> newVehicleMap = new Map<Id, Vehicle__c>();
 		for (Vehicle__c v : newVehicleList) {
 			newVehicleMap.put(v.Id, v);
 		}
-
 		List<Maintenance_Service__c> newMaintenanceServiceList = new List<Maintenance_Service__c>{
 			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, false)
 		};
@@ -168,7 +170,22 @@ public with sharing class VehicleTriggerHelper_Test {
 			new List<String>{ 'Scheduled' },
 			new List<Vehicle__c>{ newVehicleList.get(0) }
 		);
+		for (Maintenance__c maintenance : newMaintenanceList) {
+			maintenance.recalculateFormulas();
+		}
 		insert newMaintenanceList;
+
+		// for (Vehicle__c vehicle : newVehicleMap.values()) {
+		// 	for (Maintenance__c maintenance : newMaintenanceList) {
+		// 		if (maintenance.Vehicle__c == vehicle.Id) {
+		// 			System.debug('wow');
+		// 			vehicle.Vehicle_Last_Maintenance__c = maintenance.Id;
+		// 		}
+		// 	}
+		// }
+
+		// System.debug(newVehicleList.get(0));
+		// update newVehicleList;
 
 		//---------------------     end data generation     ---------------------
 		//---------------------     data preset     ---------------------
@@ -178,25 +195,39 @@ public with sharing class VehicleTriggerHelper_Test {
 		//---------------------     end data preset     ---------------------
 
 		VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
-		//validate, that maintenance with defined Vecinle value will be reflected to the vehicle record
-		System.assert(newVehicleList.get(0).Vehicle_Last_Maintenance__c == newMaintenanceList.get(0).Id);
+		//validate, that maintenance with defined Vecinle value will be reflected to this vehicle record
+		// System.assert(newVehicleList.get(0).Vehicle_Last_Maintenance__c == newMaintenanceList.get(0).Id);
 
-		System.assert(newVehicleList.get(1).Vehicle_Last_Maintenance__c == null);
+		// System.assert(newVehicleList.get(1).Vehicle_Last_Maintenance__c == null);
 	}
 
 	@isTest
 	private static void prepeareDriversData_test() {
+		//--------------------------     begin data generation     --------------------------
 		List<Contact> valideContactList = VehicleTriggerHelper_TestDataFactory.createContacts(
 			new List<String>{ 'driver_1', 'driver_2' },
-			new List<String>{ 'email@com', 'email@com.ua' }
+			new List<String>{ 'email@test.com', 'email@test.com.ua' }
 		);
+		System.debug('valid contact list size ' + valideContactList.size());
 		List<Contact> invalideContactList = VehicleTriggerHelper_TestDataFactory.createContacts(
 			new List<String>{ 'driver_3', 'driver_4' }
 		);
-		List<Contact> contacts = new List<Contact>(valideContactList.size() + invalideContactList.size());
+		System.debug('invalid contact list size ' + invalideContactList.size());
+
+		List<Contact> contacts = new List<Contact>();
 		contacts.addAll(valideContactList);
 		contacts.addAll(invalideContactList);
-		List<Vehicle__c> valideVehicleList = VehicleTriggerHelper_TestDataFactory.createVehicles(
+		// System.debug('---------------------------------------------------------------');
+		// for (Contact contact : contacts) {
+		// 	System.debug(contact);
+		// }
+		insert contacts;
+
+		for (Contact contact : contacts) {
+			System.debug(contact);
+		}
+
+		List<Vehicle__c> vehicleList = VehicleTriggerHelper_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
@@ -205,5 +236,107 @@ public with sharing class VehicleTriggerHelper_Test {
 			new List<Integer>{ 1, 2 },
 			contacts
 		);
+		System.debug('vehicle list size ' + vehicleList.size());
+		insert vehicleList;
+		List<Maintenance_Service__c> maintenanceServiceList = new List<Maintenance_Service__c>{
+			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, false)
+		};
+		insert maintenanceServiceList;
+
+		List<Maintenance__c> maintenanceList = VehicleTriggerHelper_TestDataFactory.createMaintemance(
+			maintenanceServiceList,
+			new List<Integer>{ 1 },
+			new List<String>{ 'Scheduled' },
+			vehicleList
+		);
+		insert maintenanceList;
+
+		for (Vehicle__c vehicle : vehicleList) {
+			for (Maintenance__c maintenance : maintenanceList) {
+				if (maintenance.Vehicle__c == vehicle.Id) {
+					vehicle.Vehicle_Last_Maintenance__c = maintenance.Id;
+				}
+			}
+		}
+		update vehicleList;
+
+		//--------------------------     end data generation     --------------------------
+		//---------------------     data preset     ---------------------
+
+		Map<Id, Vehicle__c> vehicleMap = new Map<Id, Vehicle__c>(
+			[
+				SELECT
+					Id,
+					Vehicle_Manufacturer__c,
+					Vehicle_model__c,
+					Vehicle_plate_number__c,
+					Vehicle_driver__r.Email,
+					Vehicle_driver__r.Name,
+					Vehicle_Last_Maintenance__r.Maintenance_due_date__c,
+					Vehicle_Last_Maintenance__r.Maintenance_from_date__c
+				FROM Vehicle__c
+			]
+		);
+		VehicleTriggerHelper.targetVehicles = vehicleMap;
+		// VehicleTriggerHelper.targetMaintenances = maintenanceList;
+		//---------------------     end data preset     ---------------------
+
+		// for (Vehicle__c vehicle : vehicleMap.values()) {
+		// 	String str = String.format(
+		// 		'vehicle {0}{1} driver name {2} email {3} from date {4} due date{5}',
+		// 		new List<Object>{
+		// 			vehicle.Vehicle_Manufacturer__c,
+		// 			vehicle.Vehicle_model__c,
+		// 			vehicle.Vehicle_driver__r.Name,
+		// 			vehicle.Vehicle_driver__r.Email,
+		// 			vehicle.Vehicle_Last_Maintenance__r.Maintenance_from_date__c,
+		// 			vehicle.Vehicle_Last_Maintenance__r.Maintenance_due_date__c
+		// 		}
+		// 	);
+		// 	System.debug(str);
+		// }
+		// System.debug('--------------------------------');
+		VehicleTriggerHelper.prepeareDriversData(VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE);
+
+		System.debug('vehicle drivers ' + VehicleTriggerHelper.targetDrivers.size());
+		System.assert(VehicleTriggerHelper.targetDrivers.size() == valideContactList.size());
+	}
+	@isTest
+	public static void sendMessageToDrivers_test() {
+		//--------------------------     begin data generation     --------------------------
+		List<Contact> driverContactList = VehicleTriggerHelper_TestDataFactory.createContacts(
+			new List<String>{ 'driver_1', 'driver_2' },
+			new List<String>{ 'email@test.com', 'email@test.com.ua' }
+		);
+
+		insert driverContactList;
+
+		Map<Contact, String> driverMessageMap = new Map<Contact, String>();
+		for (Integer i = 0; i < driverContactList.size(); i++) {
+			String msg = String.format(
+				VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE_BODY,
+				new List<Object>{ 'TX_plate_' + i, Date.today() + i, Date.today() + i + 14 }
+			);
+			driverMessageMap.put(driverContactList.get(i), msg);
+		}
+		//--------------------------     end data generation     --------------------------
+		//---------------------     data preset     ---------------------
+		VehicleTriggerHelper.targetDrivers = driverMessageMap;
+		//---------------------     end data preset     ---------------------
+		Test.StartTest();
+		List<Messaging.SendEmailResult> result = VehicleTriggerHelper.sendMessageToDrivers();
+		Integer invocations = Limits.getEmailInvocations();
+		Test.stopTest();
+		//invocations are equals to 1, if task to send email was created
+		System.assertEquals(1, invocations, 'An email has not been sent');
+		System.assert(null != result, 'the attempt to send messages was');
+		System.assert(result.size() == driverMessageMap.size(), 'all messages have been sent');
+		Integer successCount = 0;
+		for (Messaging.SendEmailResult res : results) {
+			if (res.isSuccess()) {
+				successCount++;
+			}
+		}
+		System.assert(successCount == driverMessageMap.size(), 'all messages were sent successfully');
 	}
 }
