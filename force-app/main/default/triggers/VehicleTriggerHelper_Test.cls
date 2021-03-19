@@ -332,7 +332,7 @@ public with sharing class VehicleTriggerHelper_Test {
 		System.assert(null != result, 'the attempt to send messages was');
 		System.assert(result.size() == driverMessageMap.size(), 'all messages have been sent');
 		Integer successCount = 0;
-		for (Messaging.SendEmailResult res : results) {
+		for (Messaging.SendEmailResult res : result) {
 			if (res.isSuccess()) {
 				successCount++;
 			}

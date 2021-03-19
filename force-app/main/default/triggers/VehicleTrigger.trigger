@@ -17,7 +17,7 @@ trigger VehicleTrigger on Vehicle__c(after insert, after update) {
 		if (Trigger.isInsert) {
 			System.debug('point 1');
 		} else if (Trigger.isUpdate) {
-			VehicleTriggerHandler.updateVehicleProcess(Trigger.oldMap, Trigger.newMap);
+			VehicleTriggerHandler.updateVehicleProcess(Trigger.old, Trigger.new);
 			System.debug('point 1');
 		}
 	}

@@ -3,7 +3,7 @@ public class VehicleTriggerHandler {
 		// VehicleTriggerHelper.prepeareVehicleData(oldList, newList);
 		// VehicleTriggerHelper.createMaintenanceRecords();
 
-		VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
+		// VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
 		// VehicleTriggerHelper.prepeareDriversData(VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE);
 		// VehicleTriggerHelper.sendMessageToDrivers();
 	}

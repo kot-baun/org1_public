@@ -1,0 +1,6 @@
+SELECT Id, Vehicle_model_description__c, 
+Vehicle_Last_Maintenance__r.Maintenance_Service__r.Name,
+Vehicle_Last_Maintenance__r.Maintenance_Service__r.Maintenance_default__c
+
+  FROM Vehicle__c
+  WHERE Vehicle_Last_Maintenance__c != null
