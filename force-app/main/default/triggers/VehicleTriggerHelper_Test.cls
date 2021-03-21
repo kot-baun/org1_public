@@ -2,8 +2,10 @@
 public with sharing class VehicleTriggerHelper_Test {
 	@isTest
 	private static void validateVehicleData_test() {
+		//--------------------------     enable bypass     --------------------------
+		BypassContriller.enableBypass();
 		//--------------------------     begin data generation     --------------------------
-		List<Vehicle__c> oldList = VehicleTriggerHelper_TestDataFactory.createVehicles(
+		List<Vehicle__c> oldList = VehicleTrigger_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
@@ -17,15 +19,28 @@ public with sharing class VehicleTriggerHelper_Test {
 		// for (Vehicle__c vehicle : oldList) {
 		// 	System.debug(vehicle);
 		// }
-		List<Vehicle__c> newList = VehicleTriggerHelper_TestDataFactory.createVehicles(
+		List<Vehicle__c> validList = VehicleTrigger_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
 			new List<String>{ 'Available' },
 			new List<Integer>{ 0 },
-			new List<Integer>{ -1, 0, 1, 2 }
+			new List<Integer>{ 1, 2 }
 		);
-
+		List<Vehicle__c> invalidList = VehicleTrigger_TestDataFactory.createVehicles(
+			new List<String>{ 'BAD CAR' },
+			new List<String>{ 'model_1' },
+			new List<String>{ 'TX123' },
+			new List<String>{ 'Available' },
+			new List<Integer>{ 0 },
+			new List<Integer>{ -1, 0 }
+		);
+		List<Vehicle__c> newList = new List<Vehicle__c>();
+		newList.addAll(validList);
+		newList.addAll(invalidList);
+		for (Vehicle__c vehicle : newList) {
+			vehicle.recalculateFormulas();
+		}
 		Database.insert(newList);
 		// System.debug('new list size' + newList.size());
 		// for (Vehicle__c vehicle : newList) {
@@ -37,16 +52,16 @@ public with sharing class VehicleTriggerHelper_Test {
 			newList.get(i).Id = oldList.get(i).Id;
 		}
 
-		// System.debug('--------------------     after     ------------------------------------');
-		// System.debug('old list size ' + oldList.size());
-		// for (Vehicle__c vehicle : oldList) {
-		// 	System.debug(vehicle);
-		// }
-		// System.debug('new list size' + newList.size());
-		// for (Vehicle__c vehicle : newList) {
-		// 	System.debug(vehicle);
-		// }
-		// System.debug('-----------------------------------------------------------------------------');
+		System.debug('--------------------     after     ------------------------------------');
+		System.debug('old list size ' + oldList.size());
+		for (Vehicle__c vehicle : oldList) {
+			System.debug(vehicle);
+		}
+		System.debug('new list size' + newList.size());
+		for (Vehicle__c vehicle : newList) {
+			System.debug(vehicle);
+		}
+		System.debug('-----------------------------------------------------------------------------');
 
 		Map<Id, Vehicle__c> oldMap = new Map<Id, Vehicle__c>();
 		for (Vehicle__c v : oldList) {
@@ -58,21 +73,38 @@ public with sharing class VehicleTriggerHelper_Test {
 			newMap.put(v.Id, v);
 		}
 
+		//--------------------     update test     ---------------------------
+
+		Test.startTest();
 		VehicleTriggerHelper.validateVehicleData(oldMap, newMap);
 		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles.values()) {
 			System.debug(vehicle);
 		}
-		//TODO hardcode 2?
-		System.assertEquals(2, VehicleTriggerHelper.targetVehicles.size());
+		System.assertEquals(validList.size(), VehicleTriggerHelper.targetVehicles.size());
+
+		Test.stopTest();
+		// //--------------------     insert test     ---------------------------
+		// Test.startTest();
+		// VehicleTriggerHelper.validateVehicleData(newMap);
+		// for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles.values()) {
+		// 	System.debug(vehicle);
+		// }
+		// System.assertEquals(validList.size(), VehicleTriggerHelper.targetVehicles.size());
+		// Test.stopTest();
+		// System.debug('-----------------  >>>>>>>>>>>>>>>>>   ' + newMap.size());
+		//--------------------------     disable bypass     --------------------------
+		BypassContriller.disableBypass();
 	}
 	/**
 	 *	positive test, check default and custom maintenance creation
 	 */
 	@isTest
 	private static void createMaintenanceRecords_test() {
+		//--------------------------     enable bypass     --------------------------
+		BypassContriller.enableBypass();
 		//prepare data
 		//two vehicles
-		List<Vehicle__c> newVehicleList = VehicleTriggerHelper_TestDataFactory.createVehicles(
+		List<Vehicle__c> newVehicleList = VehicleTrigger_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
@@ -83,8 +115,8 @@ public with sharing class VehicleTriggerHelper_Test {
 		insert newVehicleList;
 		//two service, custom and default
 		List<Maintenance_Service__c> newMaintenanceServiceList = new List<Maintenance_Service__c>{
-			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, false),
-			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(2, true)
+			VehicleTrigger_TestDataFactory.createMaintenanceService(1, false),
+			VehicleTrigger_TestDataFactory.createMaintenanceService(2, true)
 		};
 		insert newMaintenanceServiceList;
 		for (Maintenance_Service__c service : newMaintenanceServiceList) {
@@ -92,7 +124,7 @@ public with sharing class VehicleTriggerHelper_Test {
 		}
 
 		//single value, for a custome case
-		List<Maintenance__c> newMaintenanceList = VehicleTriggerHelper_TestDataFactory.createMaintemance(
+		List<Maintenance__c> newMaintenanceList = VehicleTrigger_TestDataFactory.createMaintemance(
 			newMaintenanceServiceList,
 			new List<Integer>{ 0 },
 			new List<String>{ 'Scheduled' },
@@ -116,8 +148,9 @@ public with sharing class VehicleTriggerHelper_Test {
 		}
 		System.debug('custome maintenance');
 		System.debug(newMaintenanceList.get(0));
-
+		Test.startTest();
 		VehicleTriggerHelper.createMaintenanceRecords();
+		Test.stopTest();
 		//check, that the onjects was created
 		System.assertEquals(2, VehicleTriggerHelper.targetMaintenances.size(), '2 records awaiting');
 
@@ -137,19 +170,23 @@ public with sharing class VehicleTriggerHelper_Test {
 
 		//default service
 		System.assert(result.values().get(0).Maintenance_Service__r.Maintenance_default__c == true);
+		//--------------------------     disable bypass     --------------------------
+		BypassContriller.disableBypass();
 	}
 	/**
 	 *
 	 */
 	@isTest
 	private static void assignMaintenanceToVehicleAndSave_test() {
-		List<Vehicle__c> newVehicleList = VehicleTriggerHelper_TestDataFactory.createVehicles(
+		//--------------------------     enable bypass     --------------------------
+		BypassContriller.enableBypass();
+		List<Vehicle__c> newVehicleList = VehicleTrigger_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
 			new List<String>{ 'Available' },
 			new List<Integer>{ 0 },
-			new List<Integer>{ 12 }
+			new List<Integer>{ 1, 2 }
 		);
 		insert newVehicleList;
 		// Map<Id, Vehicle__c> newVehicleMap = new Map<Id, Vehicle__c>(
@@ -160,11 +197,11 @@ public with sharing class VehicleTriggerHelper_Test {
 			newVehicleMap.put(v.Id, v);
 		}
 		List<Maintenance_Service__c> newMaintenanceServiceList = new List<Maintenance_Service__c>{
-			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, true)
+			VehicleTrigger_TestDataFactory.createMaintenanceService(1, true)
 		};
 		insert newMaintenanceServiceList;
 
-		List<Maintenance__c> newMaintenanceList = VehicleTriggerHelper_TestDataFactory.createMaintemance(
+		List<Maintenance__c> newMaintenanceList = VehicleTrigger_TestDataFactory.createMaintemance(
 			newMaintenanceServiceList,
 			new List<Integer>{ 0 },
 			new List<String>{ 'Scheduled' },
@@ -193,23 +230,28 @@ public with sharing class VehicleTriggerHelper_Test {
 		VehicleTriggerHelper.targetVehicles = newVehicleMap;
 		VehicleTriggerHelper.targetMaintenances = newMaintenanceList;
 		//---------------------     end data preset     ---------------------
-
+		Test.startTest();
 		VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
+		Test.stopTest();
 		//validate, that maintenance with defined Vecinle value will be reflected to this vehicle record
-		// System.assert(newVehicleList.get(0).Vehicle_Last_Maintenance__c == newMaintenanceList.get(0).Id);
+		System.assert(newVehicleList.get(0).Vehicle_Last_Maintenance__c == newMaintenanceList.get(0).Id);
 
-		// System.assert(newVehicleList.get(1).Vehicle_Last_Maintenance__c == null);
+		System.assert(newVehicleList.get(1).Vehicle_Last_Maintenance__c == null);
+		//--------------------------     disable bypass     --------------------------
+		BypassContriller.disableBypass();
 	}
 
 	@isTest
 	private static void prepeareDriversData_test() {
+		//--------------------------     enable bypass     --------------------------
+		BypassContriller.enableBypass();
 		//--------------------------     begin data generation     --------------------------
-		List<Contact> valideContactList = VehicleTriggerHelper_TestDataFactory.createContacts(
+		List<Contact> valideContactList = VehicleTrigger_TestDataFactory.createContacts(
 			new List<String>{ 'driver_1', 'driver_2' },
 			new List<String>{ 'email@test.com', 'email@test.com.ua' }
 		);
 		System.debug('valid contact list size ' + valideContactList.size());
-		List<Contact> invalideContactList = VehicleTriggerHelper_TestDataFactory.createContacts(
+		List<Contact> invalideContactList = VehicleTrigger_TestDataFactory.createContacts(
 			new List<String>{ 'driver_3', 'driver_4' }
 		);
 		System.debug('invalid contact list size ' + invalideContactList.size());
@@ -227,7 +269,7 @@ public with sharing class VehicleTriggerHelper_Test {
 			System.debug(contact);
 		}
 
-		List<Vehicle__c> vehicleList = VehicleTriggerHelper_TestDataFactory.createVehicles(
+		List<Vehicle__c> vehicleList = VehicleTrigger_TestDataFactory.createVehicles(
 			new List<String>{ 'CAR' },
 			new List<String>{ 'model_1' },
 			new List<String>{ 'TX123' },
@@ -239,11 +281,11 @@ public with sharing class VehicleTriggerHelper_Test {
 		System.debug('vehicle list size ' + vehicleList.size());
 		insert vehicleList;
 		List<Maintenance_Service__c> maintenanceServiceList = new List<Maintenance_Service__c>{
-			VehicleTriggerHelper_TestDataFactory.createMaintenanceService(1, false)
+			VehicleTrigger_TestDataFactory.createMaintenanceService(1, false)
 		};
 		insert maintenanceServiceList;
 
-		List<Maintenance__c> maintenanceList = VehicleTriggerHelper_TestDataFactory.createMaintemance(
+		List<Maintenance__c> maintenanceList = VehicleTrigger_TestDataFactory.createMaintemance(
 			maintenanceServiceList,
 			new List<Integer>{ 1 },
 			new List<String>{ 'Scheduled' },
@@ -296,15 +338,20 @@ public with sharing class VehicleTriggerHelper_Test {
 		// 	System.debug(str);
 		// }
 		// System.debug('--------------------------------');
+		Test.startTest();
 		VehicleTriggerHelper.prepeareDriversData(VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE);
-
+		Test.stopTest();
 		System.debug('vehicle drivers ' + VehicleTriggerHelper.targetDrivers.size());
 		System.assert(VehicleTriggerHelper.targetDrivers.size() == valideContactList.size());
+		//--------------------------     disable bypass     --------------------------
+		BypassContriller.disableBypass();
 	}
 	@isTest
 	public static void sendMessageToDrivers_test() {
+		//--------------------------     enable bypass     --------------------------
+		BypassContriller.enableBypass();
 		//--------------------------     begin data generation     --------------------------
-		List<Contact> driverContactList = VehicleTriggerHelper_TestDataFactory.createContacts(
+		List<Contact> driverContactList = VehicleTrigger_TestDataFactory.createContacts(
 			new List<String>{ 'driver_1', 'driver_2' },
 			new List<String>{ 'email@test.com', 'email@test.com.ua' }
 		);
@@ -338,5 +385,7 @@ public with sharing class VehicleTriggerHelper_Test {
 			}
 		}
 		System.assert(successCount == driverMessageMap.size(), 'all messages were sent successfully');
+		//--------------------------     disable bypass     --------------------------
+		BypassContriller.disableBypass();
 	}
 }

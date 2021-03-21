@@ -1,4 +1,4 @@
-trigger VehicleTrigger on Vehicle__c(after insert, after update) {
+trigger VehicleTrigger on Vehicle__c(before insert, before update, after insert, after update) {
 	// 	before insert,
 	// 	before update,
 	// 	before delete,
@@ -12,12 +12,25 @@ trigger VehicleTrigger on Vehicle__c(after insert, after update) {
 	 * Or to the TODAY	value, if previous Next Maintenance date does not exist
 	 * next, create new Maintenance record
 	 */
-	if (Trigger.isAfter) {
-		//newMap doesn't exist in insert
+	if (Trigger.isBefore) {
 		if (Trigger.isInsert) {
-			VehicleTriggerHandler.insertVehicleProcess(Trigger.newMap);
-		} else if (Trigger.isUpdate) {
-			VehicleTriggerHandler.onNextMaintenanceUpdate(Trigger.oldMap, Trigger.newMap);
+			//newMap doesn't exist in insert
+			if (BypassContriller.bypassTriger) {
+				VehicleTriggerHandler.onInsertValidateVehicle(Trigger.new);
+			}
+		}
+		if (Trigger.isUpdate) {
+			if (BypassContriller.bypassTriger) {
+				VehicleTriggerHandler.onUpdateValidateVehicle(Trigger.oldMap, Trigger.newMap);
+			}
+		}
+	}
+
+	if (Trigger.isAfter) {
+		if (Trigger.isInsert || Trigger.isUpdate) {
+			if (BypassContriller.bypassTriger) {
+				VehicleTriggerHandler.nextMaintenanceCreatingHandler();
+			}
 		}
 	}
 }

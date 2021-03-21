@@ -1,5 +1,5 @@
 @isTest
-public with sharing class VehicleTriggerHelper_TestDataFactory {
+public with sharing class VehicleTrigger_TestDataFactory {
 	public static List<Vehicle__c> createVehicles(
 		List<String> manufacture,
 		List<String> model,
@@ -75,6 +75,27 @@ public with sharing class VehicleTriggerHelper_TestDataFactory {
 		maintenanceService.Maintenance_default__c = defaultService;
 		return maintenanceService;
 	}
+
+	/**
+	 * create maintenance service
+	 * @param n suffix for adress and name
+	 * @param defaultService checkbox, create default service , or not
+	 */
+	public static List<Maintenance_Service__c> createMaintenanceService(Integer total, Integer defaultService) {
+		// if(defaultService > total)
+		// throw new customeIllegalArgumentException('The number of default services is greater than the total number of services, and this is wrong');
+		List<Maintenance_Service__c> result = new List<Maintenance_Service__c>();
+
+		for (Integer i = 0; i < defaultService; i++) {
+			result.add(createMaintenanceService(i, true));
+		}
+		for (Integer i = defaultService; i < total; i++) {
+			result.add(createMaintenanceService(i, false));
+		}
+
+		return result;
+	}
+
 	/**
 	 * builder for Contacts
 	 * @param name requared field, name of contact
@@ -87,11 +108,24 @@ public with sharing class VehicleTriggerHelper_TestDataFactory {
 	/**
 	 * builder for Contacts
 	 * @param name requared field, name of contact
-	 * @param email email field. Caution, no validation!!!!!//TODO validation?
+	 * @param email email field. Caution, no validation!!!!!//TODO email validation?
 	 */
 	public static List<Contact> createContacts(List<String> name, List<String> email) {
 		List<Contact> result = createContacts(name);
 		result = setVehicleField('Contact', 'Email', result, email);
+		return result;
+	}
+	/**
+	 * builder for numered names
+	 * @param name first part of name
+	 * @param n number of names
+	 * @return list of names in format name_n
+	 */
+	public static List<String> createContactsNames(String name, Integer n) {
+		List<String> result = new List<String>();
+		for (Integer i = 0; i < n; i++) {
+			result.add(name + '_' + i);
+		}
 		return result;
 	}
 
