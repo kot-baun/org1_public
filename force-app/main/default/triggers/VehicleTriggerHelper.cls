@@ -27,27 +27,29 @@ public class VehicleTriggerHelper {
 			Vehicle__c oldVehicle = oldMap.get(newVehicle.Id);
 			// System.debug('old vehicle ' + oldVehicle);
 
-			//filter, Next Maintenance Date is under update
-			if (newVehicle.Vehicle_Next_Maintenance_Date__c != oldVehicle.Vehicle_Next_Maintenance_Date__c) {
-				//validate, Next Maintenance Date is on the future
-				if (newVehicle.Vehicle_Last_Maintenance_Date__c < newVehicle.Vehicle_Next_Maintenance_Date__c) {
+			//validate, Next Maintenance Date is on the future
+			if (newVehicle.Vehicle_Last_Maintenance_Date__c < newVehicle.Vehicle_Next_Maintenance_Date__c) {
+				//filter, Next Maintenance Date is under update
+				if (newVehicle.Vehicle_Next_Maintenance_Date__c != oldVehicle.Vehicle_Next_Maintenance_Date__c) {
 					//update
 					newVehicle.Vehicle_Last_Maintenance_Date__c = oldVehicle.Vehicle_Next_Maintenance_Date__c;
 					targetVehicles.put(newVehicle.Id, newVehicle);
-					continue;
 				}
+			} else {
+				String errMsg = String.format(
+					'On update process:' + DATE_VALIDATION_ERROR,
+					new List<Object>{
+						newVehicle.Id,
+						newVehicle.Vehicle_model_description__c,
+						newVehicle.Vehicle_Last_Maintenance_Date__c,
+						newVehicle.Vehicle_Next_Maintenance_Date__c
+					}
+				);
+
+				System.debug(errMsg);
+				System.debug(newVehicle.Id);
+				newMap.get(newVehicle.Id).addError(errMsg);
 			}
-			String errMsg = String.format(
-				DATE_VALIDATION_ERROR,
-				new List<Object>{
-					newVehicle.Id,
-					newVehicle.Vehicle_model_description__c,
-					newVehicle.Vehicle_Last_Maintenance_Date__c,
-					newVehicle.Vehicle_Next_Maintenance_Date__c
-				}
-			);
-			// Trigger.new.get(newList.indexOf(vehicle)).addError(errMsg);
-			System.debug(errMsg);
 		}
 	}
 	/**
@@ -55,25 +57,27 @@ public class VehicleTriggerHelper {
 	 * filter and validate values for the new maintenance process
 	 * valid values are stored in a static context
 	 */
-	public static void validateVehicleData(Map<Id, Vehicle__c> newMap) {
-		for (Vehicle__c newVehicle : newMap.values()) {
+	public static void validateVehicleData(List<Vehicle__c> newList) {
+		targetVehicles = new List<Vehicle__c>();
+		for (Vehicle__c newVehicle : newList) {
 			//validate, Next Maintenance Date is on the future
-			if (newVehicle.Vehicle_Last_Maintenance_Date__c < newVehicle.Vehicle_Next_Maintenance_Date__c) {
+			Date today = Date.today();
+			if (today < newVehicle.Vehicle_Next_Maintenance_Date__c) {
 				targetVehicles.put(newVehicle.Id, newVehicle);
-				continue;
+			} else {
+				String errMsg = String.format(
+					'On insert process:' + DATE_VALIDATION_ERROR,
+					new List<Object>{
+						newVehicle.Id,
+						newVehicle.Vehicle_model_description__c,
+						newVehicle.Vehicle_Last_Maintenance_Date__c,
+						newVehicle.Vehicle_Next_Maintenance_Date__c
+					}
+				);
+				System.debug(errMsg);
+				System.debug(newVehicle.Id);
+				newList.get(newList.indexOf(newVehicle)).addError(errMsg);
 			}
-
-			String errMsg = String.format(
-				DATE_VALIDATION_ERROR,
-				new List<Object>{
-					newVehicle.Id,
-					newVehicle.Vehicle_model_description__c,
-					newVehicle.Vehicle_Last_Maintenance_Date__c,
-					newVehicle.Vehicle_Next_Maintenance_Date__c
-				}
-			);
-			// Trigger.new.get(newList.indexOf(vehicle)).addError(errMsg);
-			System.debug(errMsg);
 		}
 	}
 
@@ -81,6 +85,8 @@ public class VehicleTriggerHelper {
 	 * crate maintenance objects according to task
 	 */
 	public static void createMaintenanceRecords() {
+		System.debug('maintenance creation begin with targetVehicles size at ' + targetVehicles.size());
+
 		Maintenance_Service__c defaultService;
 		try {
 			defaultService = [
@@ -127,8 +133,7 @@ public class VehicleTriggerHelper {
 
 			targetMaintenances.add(tmp);
 		}
-		//TODO fix, dont insert now. Maybe
-		//how to insert in map, if ID is a key?????
+		System.debug('maintenance creation complete with targetMaintenance size at ' + targetMaintenances.size());
 		insert targetMaintenances;
 	}
 	/**
@@ -136,11 +141,19 @@ public class VehicleTriggerHelper {
 	 * This is the latest change in vehicle and maintenance data.
 	 */
 	public static void assignMaintenanceToVehicleAndSave() {
+		System.debug(
+			'assign begin with targetMaintenance size at ' +
+			targetMaintenances.size() +
+			'and targetVehicles size at ' +
+			targetVehicles.size()
+		);
+		INteger count = 0;
 		for (Vehicle__c vehicle : targetVehicles.values()) {
 			for (Maintenance__c maintenance : targetMaintenances) {
 				if (maintenance.Vehicle__c == vehicle.Id) {
 					// Maintenance__c mmm = vehicle.Vehicle_Last_Maintenance__r;
 					vehicle.Vehicle_Last_Maintenance__c = maintenance.Id;
+					count++;
 				}
 			}
 		}
@@ -152,9 +165,7 @@ public class VehicleTriggerHelper {
 		for (Maintenance__c maintenance : targetMaintenances) {
 			System.debug('maintenance ' + maintenance + ' due ' + maintenance.Maintenance_due_date__c);
 		}
-
-		//read doc, noobe
-		// Database.insert(targetVehicles.values(), true);
+		System.debug('assign complete  with execution count ' + count);
 	}
 
 	/**
@@ -162,6 +173,8 @@ public class VehicleTriggerHelper {
 	 * generate e-mail message to the valide drivers
 	 */
 	public static void prepeareDriversData(String type) {
+		System.debug('prepare driver data begin with targetVehicles size at ' + targetVehicles.size());
+
 		for (Vehicle__c vehicle : targetVehicles.values()) {
 			Contact driver = vehicle.Vehicle_driver__r;
 			if (null == driver || null == driver.Email) {
@@ -192,6 +205,7 @@ public class VehicleTriggerHelper {
 				targetDrivers.put(driver, msg);
 			}
 		}
+		System.debug('prepare driver data complete with targetDrivers size at ' + targetDrivers.size());
 	}
 
 	public static List<Messaging.SendEmailResult> sendMessageToDrivers() {
