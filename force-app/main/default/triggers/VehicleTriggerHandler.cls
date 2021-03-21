@@ -8,8 +8,7 @@ public class VehicleTriggerHandler {
 	}
 	public static void nextMaintenanceCreatingHandler() {
 		VehicleTriggerHelper.createMaintenanceRecords();
-		VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
-		VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
+		VehicleTriggerHelper.assignMaintenanceToVehicle();
 		VehicleTriggerHelper.prepeareDriversData(VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE);
 		VehicleTriggerHelper.sendMessageToDrivers();
 	}

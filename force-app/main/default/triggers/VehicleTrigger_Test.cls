@@ -3,8 +3,6 @@ public with sharing class VehicleTrigger_Test {
 	static final Integer numderOfDriverWithEmail = 100;
 	static final Integer numderOfDriverWithoutEmail = 100;
 
-	static final Integer numberOfInvalidRecords = 100;
-
 	static final Integer numberOfValidRecords_WithLastMaintenance_WithoutDriver = 100;
 	static final Integer numberOfValidRecords_WithLastMaintenance_WithDriver_WithEmail = numderOfDriverWithEmail;
 	static final Integer numberOfValidRecords_WithLastMaintenance_WithDriver_WithoutEmail = numderOfDriverWithoutEmail;
@@ -13,7 +11,7 @@ public with sharing class VehicleTrigger_Test {
 	static final Integer numberOfValidRecords = 400;
 	static final Integer numberOfMessages = 100;
 
-	static void makeData() {
+	static void makeManyVehicles() {
 		//contacts
 		//every contact will get message about two vehicles
 		List<Contact> driverWithEmail = VehicleTrigger_TestDataFactory.createContacts(
@@ -62,7 +60,7 @@ public with sharing class VehicleTrigger_Test {
 		}
 		System.debug('vehicleWithLastMaintenanceList size (before update)' + vehicleWithLastMaintenanceList.size());
 
-		update vehicleWithLastMaintenanceList;
+		// update vehicleWithLastMaintenanceList;
 	}
 
 	static List<Vehicle__c> createVehicles(List<Contact> drivers) {
@@ -88,9 +86,69 @@ public with sharing class VehicleTrigger_Test {
 		}
 	}
 
+	public static Vehicle__c makeSingleVehicle(Boolean withDriver, Boolean withMaintenance) {
+		Contact driver;
+		Maintenance__c maintenance;
+
+		if (withDriver) {
+			driver = new Contact();
+			driver.LastName = 'testDriver';
+			driver.Email = 'kamkaliev@gmail.com';
+			insert driver;
+		}
+		//default service
+		List<Maintenance_Service__c> serviceList = VehicleTrigger_TestDataFactory.createMaintenanceService(1, 1);
+		insert serviceList;
+		Vehicle__c vehicle = new Vehicle__c();
+		vehicle.Vehicle_Manufacturer__c = 'testCar';
+		vehicle.Vehicle_model__c = 'model1';
+		vehicle.Vehicle_plate_number__c = 'TX456';
+		vehicle.Vehicle_Status__c = 'Available';
+		vehicle.Vehicle_Last_Maintenance_Date__c = Date.today();
+		vehicle.Vehicle_Next_Maintenance_Date__c = Date.today() + 7;
+		vehicle.Vehicle_driver__c = driver.Id;
+		// insert vehicle;
+		vehicle.recalculateFormulas();
+		insert vehicle;
+
+		if (withMaintenance) {
+			maintenance = new Maintenance__c();
+			maintenance.Maintenance_Service__c = serviceList.get(0).Id;
+			maintenance.Maintenance_from_date__c = Date.today() + 7;
+			maintenance.Maintenance_status__c = 'Scheduled';
+			maintenance.Vehicle__c = vehicle.Id;
+			maintenance.recalculateFormulas();
+			insert maintenance;
+			vehicle.Vehicle_Last_Maintenance__c = maintenance.Id;
+			update vehicle;
+		}
+		return vehicle;
+	}
+
+	@isTest
+	private static void single_test() {
+		makeSingleVehicle(true, false);
+		List<Vehicle__c> resultVehicles = [SELECT Id, Vehicle_Next_Maintenance_Date__c FROM Vehicle__c];
+		//check, that the record was created
+		System.assert(resultVehicles.size() == 1);
+		List<Maintenance__c> resultMaintenance = [SELECT Id, Maintenance_from_date__c, Vehicle__c FROM Maintenance__c];
+
+		System.debug('vehicles ' + resultVehicles.size() + 'maintenance ' + resultMaintenance.size());
+		for (Maintenance__c maintenance : resultMaintenance) {
+			System.debug(maintenance);
+		}
+		//check, that the record was created
+		System.assert(resultMaintenance.size() == 1);
+		//check, that this is related records
+		System.assert(resultVehicles.get(0).Id == resultMaintenance.get(0).Vehicle__c);
+		System.assert(
+			resultVehicles.get(0).Vehicle_Next_Maintenance_Date__c == resultMaintenance.get(0).Maintenance_from_date__c
+		);
+	}
+
 	@isTest
 	private static void bulk_test() {
-		makeData();
+		makeManyVehicles();
 
 		Map<Id, Vehicle__c> vehiclesMap = new Map<Id, Vehicle__c>(
 			[

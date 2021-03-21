@@ -1,14 +1,9 @@
-System.debug('Hello World!');
+// Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+// String[] toAddresses = new List<String>{ 'kamkaliev@gmail.com' };
+// mail.setToAddresses(toAddresses);
+// mail.setSubject('Vehicle manage - email to driver');
+// mail.setPlainTextBody('test email');
+// System.debug(mail);
 
-public List<Integer> names() {
-	return new List<Integer>{ 1, 2, 3, 4, 5, 6 };
-}
+// List<Messaging.SendEmailResult> results = Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
 
-List<Integer> listInt = new List<Integer>{ names() };
-
-listInt.add(1);
-listInt.add(23););
-listInt.add(
-for (Integer i : listInt) {
-	System.debug('        ----> ' + i);
-}

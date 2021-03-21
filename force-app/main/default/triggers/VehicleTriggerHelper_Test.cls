@@ -77,7 +77,7 @@ public with sharing class VehicleTriggerHelper_Test {
 
 		Test.startTest();
 		VehicleTriggerHelper.validateVehicleData(oldMap, newMap);
-		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles.values()) {
+		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles) {
 			System.debug(vehicle);
 		}
 		System.assertEquals(validList.size(), VehicleTriggerHelper.targetVehicles.size());
@@ -140,12 +140,14 @@ public with sharing class VehicleTriggerHelper_Test {
 		for (Vehicle__c v : newVehicleList) {
 			newVehicleMap.put(v.Id, v);
 		}
-		VehicleTriggerHelper.targetVehicles = newVehicleMap;
+		VehicleTriggerHelper.targetVehicles = newVehicleList;
 		System.debug('vehicle');
 		for (Vehicle__c vehicle : newVehicleList) {
 			System.debug(vehicle);
 			System.debug(vehicle.Vehicle_Last_Maintenance__c);
 		}
+
+		VehicleTriggerHelper.targetMaintenances = new List<Maintenance__c>();
 		System.debug('custome maintenance');
 		System.debug(newMaintenanceList.get(0));
 		Test.startTest();
@@ -163,7 +165,6 @@ public with sharing class VehicleTriggerHelper_Test {
 			System.debug('service ' + maintenance.Maintenance_Service__c);
 			System.debug('id default ' + maintenance.Maintenance_Service__r.Maintenance_default__c);
 		}
-		//TODO hardcode
 		//custom service
 		System.assert(result.get(newMaintenanceList.get(0).Id).Maintenance_Service__r.Maintenance_default__c == false);
 		result.remove(newMaintenanceList.get(0).Id);
@@ -177,7 +178,7 @@ public with sharing class VehicleTriggerHelper_Test {
 	 *
 	 */
 	@isTest
-	private static void assignMaintenanceToVehicleAndSave_test() {
+	private static void assignMaintenanceToVehicle_test() {
 		//--------------------------     enable bypass     --------------------------
 		BypassContriller.enableBypass();
 		List<Vehicle__c> newVehicleList = VehicleTrigger_TestDataFactory.createVehicles(
@@ -227,11 +228,11 @@ public with sharing class VehicleTriggerHelper_Test {
 		//---------------------     end data generation     ---------------------
 		//---------------------     data preset     ---------------------
 
-		VehicleTriggerHelper.targetVehicles = newVehicleMap;
+		VehicleTriggerHelper.targetVehicles = newVehicleList;
 		VehicleTriggerHelper.targetMaintenances = newMaintenanceList;
 		//---------------------     end data preset     ---------------------
 		Test.startTest();
-		VehicleTriggerHelper.assignMaintenanceToVehicleAndSave();
+		VehicleTriggerHelper.assignMaintenanceToVehicle();
 		Test.stopTest();
 		//validate, that maintenance with defined Vecinle value will be reflected to this vehicle record
 		System.assert(newVehicleList.get(0).Vehicle_Last_Maintenance__c == newMaintenanceList.get(0).Id);
@@ -319,7 +320,20 @@ public with sharing class VehicleTriggerHelper_Test {
 				FROM Vehicle__c
 			]
 		);
-		VehicleTriggerHelper.targetVehicles = vehicleMap;
+		vehicleList = [
+			SELECT
+				Id,
+				Vehicle_Manufacturer__c,
+				Vehicle_model__c,
+				Vehicle_plate_number__c,
+				Vehicle_driver__r.Email,
+				Vehicle_driver__r.Name,
+				Vehicle_Last_Maintenance__r.Maintenance_due_date__c,
+				Vehicle_Last_Maintenance__r.Maintenance_from_date__c
+			FROM Vehicle__c
+		];
+		VehicleTriggerHelper.targetVehicles = vehicleList;
+		VehicleTriggerHelper.targetDrivers = new Map<Contact, String>();
 		// VehicleTriggerHelper.targetMaintenances = maintenanceList;
 		//---------------------     end data preset     ---------------------
 
