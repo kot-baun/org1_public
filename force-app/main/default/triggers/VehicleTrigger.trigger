@@ -15,12 +15,12 @@ trigger VehicleTrigger on Vehicle__c(before insert, before update, after insert,
 	if (Trigger.isBefore) {
 		if (Trigger.isInsert) {
 			//newMap doesn't exist in insert
-			if (BypassContriller.bypassTriger) {
+			if (BypassController.bypassTriger) {
 				VehicleTriggerHandler.onInsertValidateVehicle(Trigger.new);
 			}
 		}
 		if (Trigger.isUpdate) {
-			if (BypassContriller.bypassTriger) {
+			if (BypassController.bypassTriger) {
 				VehicleTriggerHandler.onUpdateValidateVehicle(Trigger.oldMap, Trigger.newMap);
 			}
 		}
@@ -28,7 +28,7 @@ trigger VehicleTrigger on Vehicle__c(before insert, before update, after insert,
 
 	if (Trigger.isAfter) {
 		if (Trigger.isInsert || Trigger.isUpdate) {
-			if (BypassContriller.bypassTriger) {
+			if (BypassController.bypassTriger) {
 				VehicleTriggerHandler.nextMaintenanceCreatingHandler();
 			}
 		}

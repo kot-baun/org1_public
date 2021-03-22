@@ -2,13 +2,14 @@
 public with sharing class VehicleTriggerHelper_Test {
 	/**
 	 * test for validate process
-	 * //TODO the test covers the insert and update process, but would be bettrer to split it into two different
+	 *
 	 * expected, that two valid records will be added to the VehicleTriggerHelper static context, and two invalide will not
 	 */
 	@isTest
 	private static void validateVehicleData_test() {
+		//TODO the test covers the insert and update process, but would be bettrer to split it into two different
 		//--------------------------     enable bypass     --------------------------
-		BypassContriller.enableBypass();
+		BypassController.enableBypass();
 		//--------------------------     begin data generation     --------------------------
 		//prepare data
 
@@ -76,7 +77,7 @@ public with sharing class VehicleTriggerHelper_Test {
 		//--------------------------   update test     --------------------------
 
 		Test.startTest();
-		VehicleTriggerHelper.validateVehicleData(oldMap, newMap);
+		VehicleTriggerHelper.validateVehicleDataForMaintenanceProcess(oldMap, newMap);
 		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles) {
 			System.debug(vehicle);
 		}
@@ -92,7 +93,7 @@ public with sharing class VehicleTriggerHelper_Test {
 		Test.stopTest();
 
 		//--------------------------     disable bypass     --------------------------
-		BypassContriller.disableBypass();
+		BypassController.disableBypass();
 	}
 	/**
 	 *	positive test, check default and custom maintenance creation
@@ -100,7 +101,7 @@ public with sharing class VehicleTriggerHelper_Test {
 	@isTest
 	private static void createMaintenanceRecords_test() {
 		//--------------------------     enable bypass     --------------------------
-		BypassContriller.enableBypass();
+		BypassController.enableBypass();
 		//--------------------------     begin data generation     --------------------------
 		//two vehicles
 		List<Vehicle__c> newVehicleList = VehicleTrigger_TestDataFactory.createVehicles(
@@ -167,7 +168,7 @@ public with sharing class VehicleTriggerHelper_Test {
 			'the entry without last maintenance was expected to use the default service'
 		);
 		//--------------------------     disable bypass     --------------------------
-		BypassContriller.disableBypass();
+		BypassController.disableBypass();
 	}
 	/**
 	 * test for assigning maintenance to a vehicle, defined in maintenance
@@ -176,7 +177,7 @@ public with sharing class VehicleTriggerHelper_Test {
 	@isTest
 	private static void assignMaintenanceToVehicle_test() {
 		//--------------------------     enable bypass     --------------------------
-		BypassContriller.enableBypass();
+		BypassController.enableBypass();
 		//--------------------------     begin data generation     --------------------------
 
 		List<Vehicle__c> newVehicleList = VehicleTrigger_TestDataFactory.createVehicles(
@@ -216,7 +217,7 @@ public with sharing class VehicleTriggerHelper_Test {
 
 		System.assert(newVehicleList.get(1).Vehicle_Last_Maintenance__c == null);
 		//--------------------------     disable bypass     --------------------------
-		BypassContriller.disableBypass();
+		BypassController.disableBypass();
 	}
 	/**
 	 *
@@ -224,7 +225,7 @@ public with sharing class VehicleTriggerHelper_Test {
 	@isTest
 	private static void prepeareDriversData_test() {
 		//--------------------------     enable bypass     --------------------------
-		BypassContriller.enableBypass();
+		BypassController.enableBypass();
 		//--------------------------     begin data generation     --------------------------
 		List<Contact> valideContactList = VehicleTrigger_TestDataFactory.createContacts(
 			new List<String>{ 'driver_1', 'driver_2' },
@@ -248,6 +249,9 @@ public with sharing class VehicleTriggerHelper_Test {
 			new List<Integer>{ 1, 2 },
 			contacts
 		);
+		for (Vehicle__c vehicle : vehicleList) {
+			vehicle.recalculateFormulas();
+		}
 		insert vehicleList;
 		List<Maintenance_Service__c> maintenanceServiceList = new List<Maintenance_Service__c>{
 			VehicleTrigger_TestDataFactory.createMaintenanceService(1, false)
@@ -290,11 +294,11 @@ public with sharing class VehicleTriggerHelper_Test {
 		//---------------------     end data preset     ---------------------
 
 		Test.startTest();
-		VehicleTriggerHelper.prepeareDriversData(VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE);
+		VehicleTriggerHelper.prepeareDriversData(vehicleList, VehicleTriggerHelper.MESSAGE_NEW_MAINTENANCE);
 		Test.stopTest();
 		System.assert(VehicleTriggerHelper.targetDrivers.size() == valideContactList.size());
 		//--------------------------     disable bypass     --------------------------
-		BypassContriller.disableBypass();
+		BypassController.disableBypass();
 	}
 	/**
 	 *
@@ -302,7 +306,7 @@ public with sharing class VehicleTriggerHelper_Test {
 	@isTest
 	public static void sendMessageToDrivers_test() {
 		//--------------------------     enable bypass     --------------------------
-		BypassContriller.enableBypass();
+		BypassController.enableBypass();
 		//--------------------------     begin data generation     --------------------------
 		List<Contact> driverContactList = VehicleTrigger_TestDataFactory.createContacts(
 			new List<String>{ 'driver_1', 'driver_2' },
@@ -339,6 +343,6 @@ public with sharing class VehicleTriggerHelper_Test {
 		}
 		System.assert(successCount == driverMessageMap.size(), 'all messages were sent successfully');
 		//--------------------------     disable bypass     --------------------------
-		BypassContriller.disableBypass();
+		BypassController.disableBypass();
 	}
 }

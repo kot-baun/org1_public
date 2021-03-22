@@ -1,4 +1,4 @@
-public class BypassContriller {
+public class BypassController {
 	public static Boolean bypassTriger = true;
 	public static void enableBypass() {
 		bypassTriger = false;
