@@ -60,7 +60,7 @@ public with sharing class VehicleTrigger_Test {
 		}
 		System.debug('vehicleWithLastMaintenanceList size (before update)' + vehicleWithLastMaintenanceList.size());
 
-		// update vehicleWithLastMaintenanceList;
+		update vehicleWithLastMaintenanceList;
 	}
 
 	static List<Vehicle__c> createVehicles(List<Contact> drivers) {

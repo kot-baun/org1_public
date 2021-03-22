@@ -162,6 +162,7 @@ public class VehicleTriggerHelper {
 				Vehicle_Last_Maintenance__r.Maintenance_Service__r.Maintenance_default__c
 			FROM Vehicle__c
 			WHERE Id IN :targetVehicles
+			WITH SECURITY_ENFORCED
 		];
 		System.debug('maintenance creation, request fullVehicles with size at ' + fullVehicle.size());
 
