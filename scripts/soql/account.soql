@@ -1,8 +1,2 @@
-// Use .soql files to store SOQL queries.
-// You can execute queries in VS Code by selecting the
-//     query text and running the command:
-//     SFDX: Execute SOQL Query with Currently Selected Text
 
-SELECT Vehicle_driver__c, Vehicle_driver__r.LastName, Vehicle_driver__r.Email
-  FROM Vehicle__c
-  WHERE Vehicle_driver__c != null AND Id > '100'
+SELECT Account.Name, (SELECT Contact.Name FROM contacts) FROM Account WHERE Account.Id IN (SELECT Contact.accountId FROM Contact)

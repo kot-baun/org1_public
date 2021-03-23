@@ -1,9 +1,9 @@
 public class BypassController {
-	public static Boolean bypassTriger = true;
+	public static Boolean enableTriger = true;
 	public static void enableBypass() {
-		bypassTriger = false;
+		enableTriger = false;
 	}
 	public static void disableBypass() {
-		bypassTriger = true;
+		enableTriger = true;
 	}
 }
