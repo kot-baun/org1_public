@@ -1,26 +1,26 @@
 @isTest
 public with sharing class VehicleTrigger_Test {
-	static final Integer numderOfDriverWithEmail = 100;
-	static final Integer numderOfDriverWithoutEmail = 100;
+	static final Integer NUMBER_OF_DRIVERS_WITH_EMAIL = 100;
+	static final Integer NUMBER_OF_DRIVERS_WITHOUT_EMAIL = 100;
 
-	static final Integer numberOfValidRecords_WithLastMaintenance_WithoutDriver = 100;
-	static final Integer numberOfValidRecords_WithLastMaintenance_WithDriver_WithEmail = numderOfDriverWithEmail;
-	static final Integer numberOfValidRecords_WithLastMaintenance_WithDriver_WithoutEmail = numderOfDriverWithoutEmail;
-	static final Integer numberOfValidRecords_WithoutLastMaintenance_WithoutDriver = 100;
+	static final Integer NUMBER_OF_VALID_RECORDS_WITH_LAST_MAINTENANCE_WITHOUT_DRIVER = 100;
+	static final Integer NUMBER_OF_VALID_RECORDS_WITH_LAST_MAINTENANCE_WITH_DRIVER_WITH_EMAIL = NUMBER_OF_DRIVERS_WITH_EMAIL;
+	static final Integer NUMBER_OF_VALID_RECORDS_WITH_LAST_MAINTENANCE_WITH_DRIVER_WITHOUT_EMAIL = NUMBER_OF_DRIVERS_WITHOUT_EMAIL;
+	static final Integer NUMBER_OF_VALID_RECORDS_WITHOUT_LAST_MAINTENANCE_WITHOUT_DRIVER = 100;
 
-	static final Integer numberOfValidRecords = 400;
-	static final Integer numberOfMessages = 100;
+	static final Integer NUMBER_OF_VALID_RECORDS = 400;
+	static final Integer NUMBER_OF_MESSAGES = 100;
 
 	static void makeManyVehicles() {
 		//contacts
 		//every contact will get message about two vehicles
 		List<Contact> driverWithEmail = VehicleTrigger_TestDataFactory.createContacts(
-			VehicleTrigger_TestDataFactory.createContactsNames('driverWithEmail', numderOfDriverWithEmail),
+			VehicleTrigger_TestDataFactory.createContactsNames('driverWithEmail', NUMBER_OF_DRIVERS_WITH_EMAIL),
 			new List<String>{ 'email@test.com' }
 		);
 		insert driverWithEmail;
 		List<Contact> driverWithoutEmail = VehicleTrigger_TestDataFactory.createContacts(
-			VehicleTrigger_TestDataFactory.createContactsNames('driverWithoutEmail', numderOfDriverWithoutEmail)
+			VehicleTrigger_TestDataFactory.createContactsNames('driverWithoutEmail', NUMBER_OF_DRIVERS_WITHOUT_EMAIL)
 		);
 		insert driverWithoutEmail;
 		//vehicles
@@ -161,7 +161,7 @@ public with sharing class VehicleTrigger_Test {
 			]
 		);
 		System.debug('in test vehiclesMap size ' + vehiclesMap.size());
-		System.assert(vehiclesMap.size() == numberOfValidRecords);
+		System.assert(vehiclesMap.size() == NUMBER_OF_VALID_RECORDS);
 		List<Maintenance__c> maintenanceList = [SELECT Id FROM Maintenance__c];
 		System.debug('in test maintenanceList size ' + maintenanceList.size());
 	}
