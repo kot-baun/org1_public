@@ -1,0 +1,15 @@
+<template>
+	<div class="wrapper">
+		<header class="header">Available Bikes for {name}</header>
+		<section class="content">
+			<div class="columns">
+				<main class="main">
+					<c-vehicle-view onvehicleselected={handleVehicleSelect}></c-vehicle-view>
+				</main>
+				<aside class="sidebar-second">
+					<c-vehicle-details vehicle-data={selectedVehicleData}></c-vehicle-details>
+				</aside>
+			</div>
+		</section>
+	</div>
+</template>

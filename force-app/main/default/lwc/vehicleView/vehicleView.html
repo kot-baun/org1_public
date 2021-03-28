@@ -1,0 +1,16 @@
+<template>
+	<div class="records">
+		<lightning-card>
+			<template if:true={vehicles.data}>
+				<lightning-datatable
+					key-field="Id"
+					data={vehicles.data}
+					columns={columns}
+					onrowselection={getSelectedName}
+					onrowaction={handleRowAction}
+				>
+				</lightning-datatable>
+			</template>
+		</lightning-card>
+	</div>
+</template>

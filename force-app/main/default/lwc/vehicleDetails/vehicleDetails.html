@@ -1,0 +1,28 @@
+<template>
+	<lightning-card>
+		<header class="header" slot="title">Vehicle detail</header>
+
+		<template if:true={targetVehicle}>
+			<p>ID: {targetVehicle.Id}</p>
+			<p>model: {targetVehicle.Vehicle_model_description__c}</p>
+			<p>plate number: {targetVehicle.Vehicle_plate_number__c}</p>
+			<template if:true={targetVehicle.Vehicle_driver__r}>
+				<p>Driver name: {targetVehicle. Vehicle_driver__r.Name}</p>
+				<p>driver contact phobne: {targetVehicle.Vehicle_driver_contact_phone_reader__c}</p>
+			</template>
+			<p>Vehicle type: {targetVehicle.Vehicle_Type__c}</p>
+			<p>Status: {targetVehicle.Vehicle_Status__c}</p>
+			<p>Last maintenance date: {targetVehicle.Vehicle_Last_Maintenance_Date__c}</p>
+		</template>
+		<template if:false={targetVehicle}>
+			<p>Brief information about the vehicle. Pick one to watch.</p>
+		</template>
+	</lightning-card>
+
+	<lightning-card>
+		<p>Miantenance statistic</p>
+	</lightning-card>
+	<template if:true={targetVehicle}>
+		<c-maintenance-view class="slds-show slds-is-relative" vehicle-id={targetVehicle.Id}></c-maintenance-view>
+	</template>
+</template>
