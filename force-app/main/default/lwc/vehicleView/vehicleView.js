@@ -25,6 +25,8 @@ const COLUMNS = [
     { label: 'Model description', fieldName: MODEL_FIELD.fieldApiName, type: 'text' },
     { label: 'Plate number', fieldName: PLATE_FIELD.fieldApiName, type: 'text', editable: true },
     { label: 'Status', fieldName: STATUS_FIELD.fieldApiName, type: 'text' },
+    { label: 'Date', fieldName: ACTUAL_DATE_FIELD.fieldApiName, type: 'date' },
+    { label: 'Driver name', fieldName: DRIVER_NAME_FIELD.fieldApiName, type: 'text' },
     // { type: 'action', typeAttributes: { rowActions: actions } },
     {
         type: 'button', label: 'Detail', typeAttributes:
@@ -36,7 +38,7 @@ const COLUMNS = [
             value: 'test',
         }
     },
-    { label: 'Date', fieldName: ACTUAL_DATE_FIELD.fieldApiName, type: 'date' },
+
 
 
 

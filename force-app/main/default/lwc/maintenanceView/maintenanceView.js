@@ -21,11 +21,14 @@ export default class MaintenanceView extends LightningElement {
     columns = COLUMNS;
     @wire(getRecords, { targetVehicleId: '$vehicleId' }) maintenances;
 
+    // @wire(getRecords) maintenances;
 
 
     handleClick(event) {
-        // console.log('maintenances ' + JSON.stringify(this.maintenances));
-        // console.log("colums : " + JSON.stringify(this.columns));
-        console.log("vehiucle ID " + this.vehicleID);
+
+        console.log('maintenances ' + JSON.stringify(this.maintenances));
+        console.log("colums : " + JSON.stringify(this.columns));
+        console.log('service ' + SERVICE_NAME_FIELD);
+
     }
 }
