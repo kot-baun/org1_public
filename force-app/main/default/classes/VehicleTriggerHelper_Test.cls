@@ -1,13 +1,12 @@
 @isTest
 public with sharing class VehicleTriggerHelper_Test {
 	/**
-	 * test for validate process
+	 * test for validate process on update
 	 *
 	 * expected, that two valid records will be added to the VehicleTriggerHelper static context, and two invalide will not
 	 */
 	@isTest
-	private static void validateVehicleData_test() {
-		//TODO the test covers the insert and update process, but would be bettrer to split it into two different
+	private static void validateVehicleData_test1() {
 		//--------------------------     enable bypass     --------------------------
 		BypassController.enableBypass();
 		//--------------------------     begin data generation     --------------------------
@@ -95,6 +94,65 @@ public with sharing class VehicleTriggerHelper_Test {
 		//--------------------------     disable bypass     --------------------------
 		BypassController.disableBypass();
 	}
+
+	/**
+	 * test for validate process on update
+	 *
+	 * expected, that two valid records will be added to the VehicleTriggerHelper static context, and two invalide will not
+	 */
+	@isTest
+	private static void validateVehicleData_test2() {
+		//--------------------------     enable bypass     --------------------------
+		BypassController.enableBypass();
+		//--------------------------     begin data generation     --------------------------
+		//prepare data
+		List<Vehicle__c> validList = VehicleTrigger_TestDataFactory.createVehicles(
+			new List<String>{ 'CAR' },
+			new List<String>{ 'model_1' },
+			new List<String>{ 'TX123' },
+			new List<String>{ 'Available' },
+			new List<Integer>{ 0 },
+			new List<Integer>{ 1, 2 }
+		);
+		List<Vehicle__c> invalidList = VehicleTrigger_TestDataFactory.createVehicles(
+			new List<String>{ 'BAD CAR' },
+			new List<String>{ 'model_1' },
+			new List<String>{ 'TX123' },
+			new List<String>{ 'Available' },
+			new List<Integer>{ 0 },
+			new List<Integer>{ -1, -2 }
+		);
+		List<Vehicle__c> newList = new List<Vehicle__c>();
+		newList.addAll(validList);
+		newList.addAll(invalidList);
+		for (Vehicle__c vehicle : newList) {
+			vehicle.recalculateFormulas();
+		}
+		// Database.insert(newList);
+
+		//--------------------------     end data generation     --------------------------
+		//--------------------------   insert test     --------------------------
+
+		Test.startTest();
+		VehicleTriggerHelper.validateVehicleDataForMaintenanceProcess(newList);
+		for (Vehicle__c vehicle : VehicleTriggerHelper.targetVehicles) {
+			System.debug(vehicle);
+		}
+		System.assertEquals(
+			validList.size(),
+			VehicleTriggerHelper.targetVehicles.size(),
+			'difference between number of valide vehicles, in count of ' +
+			validList.size() +
+			',  and number of validated in VehicleTriggerHelper vehicles, in count of ' +
+			VehicleTriggerHelper.targetVehicles.size()
+		);
+
+		Test.stopTest();
+
+		//--------------------------     disable bypass     --------------------------
+		BypassController.disableBypass();
+	}
+
 	/**
 	 *	positive test, check default and custom maintenance creation
 	 */
