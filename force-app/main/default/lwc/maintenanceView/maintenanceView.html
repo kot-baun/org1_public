@@ -1,15 +1,15 @@
 <template>
-	<lightning-card onclick={handleClick}>
-		<!-- <div> -->
-		<lightning-button
-			label="New"
-			title="new record"
-			onclick={handleShowNewDialog}
-			hidden={showNew}
-		></lightning-button>
-
-		<!-- <lightning-input type="toggle" label="Editable" name="edit"></lightning-input> -->
-		<!-- </div> -->
+	<lightning-card onclick={handleClick} title="Maintenance records">
+		<div>
+			<lightning-button
+				label="New"
+				title="new record"
+				onclick={handleShowNewDialog}
+				hidden={showNew}
+				slot="title"
+				class="slds-p-horizontal_small"
+			></lightning-button>
+		</div>
 		<template if:true={showNew}>
 			<lightning-record-edit-form object-api-name={objectApiName} onsuccess={handleMaintenanceCreation}>
 				<lightning-messages> </lightning-messages>
@@ -21,14 +21,23 @@
 				<lightning-button label="Cancel" title="cansel" onclick={handleShowNewDialog}></lightning-button>
 			</lightning-record-edit-form>
 		</template>
+
+		<!-- ************************************************************** -->
+		<c-maintenance-edit label="Edit" vehicle-id={vehicleId} maintenance-id={maintenanceId}></c-maintenance-edit>
+		<!-- ************************************************************** -->
+
 		<div>
 			<template if:true={maintenances}> maintenance exist </template>
-			<p>hello</p>
 			<lightning-button></lightning-button>
 			<template if:true={maintenances}>
-				<p>world</p>
-
-				<lightning-datatable key-field="Id" data={maintenances} columns={columns}> </lightning-datatable>
+				<lightning-datatable
+					key-field="Id"
+					data={maintenances}
+					columns={columns}
+					onsave={handleMaintenanceSave}
+					onrowaction={handleRowAction}
+				>
+				</lightning-datatable>
 			</template>
 		</div>
 	</lightning-card>

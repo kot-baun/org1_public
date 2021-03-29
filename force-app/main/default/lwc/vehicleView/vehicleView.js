@@ -31,7 +31,7 @@ const COLUMNS = [
     {
         type: 'button', label: 'Detail', typeAttributes:
         {
-            label: 'detail -> ',
+            label: 'detail >> ',
             name: RECORD_DETAIL,
             title: 'editTitle',
             disabled: false,
