@@ -36,16 +36,27 @@ const COLUMNS = [
 export default class MaintenanceView extends LightningElement {
     @api vehicleId;
     columns = COLUMNS;
-    @wire(getRecords, { targetVehicleId: '$vehicleId' }) maintenances;
 
+    @track maintenances;
+    @track error;
+    @track wireMaintenances = [];
 
+    @wire(getRecords, { targetVehicleId: '$vehicleId' })
+    wiredRecord({ data, error }) {
+        if (data) {
+            this.maintenances = data;
+        }
+        if (error) {
+            this.error = error;
+        }
+    }
 
 
 
     // @wire(getRecords) maintenances;
 
     showNew = false;
-    handleShowNewClick(event) {
+    handleShowNewDialog(event) {
         if (!this.showNew) {
             this.showNew = true;
         } else {
@@ -77,7 +88,7 @@ export default class MaintenanceView extends LightningElement {
         });
         console.log('contact creation success');
         this.dispatchEvent(toastEvent);
-
+        refreshApex(this.maintenances);
 
 
     }
