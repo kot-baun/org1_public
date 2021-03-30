@@ -1,15 +1,22 @@
 <template>
 	<div class="records">
 		<lightning-card>
-			<template if:true={vehicles.data}>
-				<lightning-datatable
-					key-field="Id"
-					data={vehicles.data}
-					columns={columns}
-					onrowselection={getSelectedName}
-					onrowaction={handleRowAction}
-				>
+			<div class="combo">
+				<lightning-combobox
+					name="progress"
+					value={filterValue}
+					label="Filtering is available. At the moment there are cars with the status:"
+					options={filterOptions}
+					onchange={handleFilter}
+				></lightning-combobox>
+			</div>
+
+			<template if:true={vehicles}>
+				<lightning-datatable key-field="Id" data={vehicles} columns={columns} onrowaction={handleRowAction}>
 				</lightning-datatable>
+			</template>
+			<template if:true={error}>
+				<p>{error}</p>
 			</template>
 		</lightning-card>
 	</div>

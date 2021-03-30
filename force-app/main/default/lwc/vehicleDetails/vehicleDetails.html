@@ -1,7 +1,7 @@
 <template>
 	<lightning-card>
 		<header class="header" slot="title">Vehicle detail</header>
-
+		<!-- show data from contailneer -->
 		<template if:true={targetVehicle}>
 			<p>ID: {targetVehicle.Id}</p>
 			<p>model: {targetVehicle.Vehicle_model_description__c}</p>
@@ -19,9 +19,9 @@
 		</template>
 	</lightning-card>
 
-	<lightning-card>
-		<p>Miantenance statistic</p>
-	</lightning-card>
+	<!-- <lightning-card>
+		<p>Maintenance statistic</p>
+	</lightning-card> -->
 	<template if:true={targetVehicle}>
 		<c-maintenance-view class="slds-show slds-is-relative" vehicle-id={targetVehicle.Id}></c-maintenance-view>
 	</template>

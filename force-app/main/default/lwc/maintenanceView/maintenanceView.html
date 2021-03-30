@@ -1,17 +1,17 @@
 <template>
-	<lightning-card onclick={handleClick} title="Maintenance records">
+	<lightning-card title="Maintenance records">
+		<!-- new record -->
 		<div>
 			<lightning-button
 				label="New"
-				title="new record"
+				title="New record"
 				onclick={handleShowNewDialog}
 				hidden={showNew}
-				slot="title"
 				class="slds-p-horizontal_small"
 			></lightning-button>
 		</div>
 		<template if:true={showNew}>
-			<lightning-record-edit-form object-api-name={objectApiName} onsuccess={handleMaintenanceCreation}>
+			<lightning-record-edit-form object-api-name={objectApiName} onsuccess={handleSuccess} onerror={handleError}>
 				<lightning-messages> </lightning-messages>
 				<lightning-input-field field-name="Maintenance_from_date__c" required="true"> </lightning-input-field>
 				<lightning-input-field field-name="Maintenance_Service__c" required="true"> </lightning-input-field>
@@ -21,16 +21,9 @@
 				<lightning-button label="Cancel" title="cansel" onclick={handleShowNewDialog}></lightning-button>
 			</lightning-record-edit-form>
 		</template>
+		<!--  -->
 
-		<!-- ************************************************************** -->
-		<c-maintenance-edit
-			label="Edit"
-			vehicle-id={vehicleId}
-			maintenance-id={maintenanceId}
-			onupdate={handleUpdate}
-		></c-maintenance-edit>
-		<!-- ************************************************************** -->
-
+		<!-- records -->
 		<div>
 			<template if:true={maintenances}> maintenance exist </template>
 			<lightning-button></lightning-button>
@@ -39,5 +32,14 @@
 				</lightning-datatable>
 			</template>
 		</div>
+		<!-- records -->
+
+		<!-- CRUD -->
+		<c-maintenance-edit
+			vehicle-id={vehicleId}
+			maintenance-id={maintenanceId}
+			onupdate={handleUpdate}
+		></c-maintenance-edit>
+		<!-- CRUD -->
 	</lightning-card>
 </template>

@@ -1,5 +1,13 @@
-/* .records {
+.records {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
-} */
+}
+/* 
+.combo {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+//	justify-content: space-between;
+}
+ */

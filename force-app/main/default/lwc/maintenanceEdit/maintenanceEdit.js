@@ -19,37 +19,32 @@ import SERVICE_NAME_FIELD from '@salesforce/schema/Maintenance__c.Maintenance_Se
 
 
 export default class ModalLwc extends NavigationMixin(LightningElement) {
+    //modal dialog visibility
     @api bShowModal = false;
     objectApiName = MAINTENANCCE_OBJECT;
     @api vehicleId;
     @api maintenanceId;
-    @api label;
 
 
-
-
-    /* javaScipt functions start */
     openModal() {
-        // to open modal window set 'bShowModal' tarck value as true
         this.bShowModal = true;
     }
 
     closeModal() {
-        // to close modal window set 'bShowModal' tarck value as false
         this.bShowModal = false;
     }
 
     @api editModal(vId, mId) {
         console.log('on editModal old maintenance ' + this.maintenanceId + ' new ' + mId + ' old vehicle ' + this.vehicleId + ' new  ' + vId);
-
-
         this.bShowModal = true;
         this.vehicleId = vId;
         this.maintenanceId = mId;
     }
 
-
-
+    /**
+     * Delete maintenance record, with maintenanceId
+     * @param  event 
+     */
     handlerManintenanceDelete(event) {
         deleteRecord(this.maintenanceId)
             .then(() => {
@@ -60,10 +55,9 @@ export default class ModalLwc extends NavigationMixin(LightningElement) {
                         variant: 'success'
                     })
                 );
-
                 this.closeModal();
+                //call update maintenance data on maintenanceView
                 this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
-
             })
             .catch(error => {
                 this.dispatchEvent(
@@ -77,25 +71,39 @@ export default class ModalLwc extends NavigationMixin(LightningElement) {
     }
 
 
-
-
+    /**
+     * Handler to show success message on maintenance update.
+     * @param  event 
+     */
     handleSuccess(event) {
         console.log(JSON.stringify(event.detail));
         const toastEvent = new ShowToastEvent({
             title: "Mainteannce created",
             message: "Record ID: " + event.detail.id,
-
             variant: "success"
         });
         console.log('maintenance creation success');
         this.dispatchEvent(toastEvent);
         this.closeModal();
+        //call update maintenance data on maintenanceView
         this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
     }
 
+    /**
+     * Handler to show error message on maintenance CRUD, and its reason
+     * @param event 
+     */
+    handleError(event) {
+        console.log(JSON.stringify(event.detail));
+        const toastEvent = new ShowToastEvent({
+            title: "Error on mainteannce creation",
+            message: "Record ID: " + event.detail,
+            variant: "error"
+        });
+        console.log('Mainteannce CRUD error');
+        this.dispatchEvent(toastEvent);
+        this.showNew = false;
+    }
 
 
-
-
-    /* javaScipt functions end */
 }

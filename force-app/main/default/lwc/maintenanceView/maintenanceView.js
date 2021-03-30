@@ -16,20 +16,6 @@ import SERVICE_NAME_FIELD from '@salesforce/schema/Maintenance__c.Maintenance_Se
 
 
 
-//---------------------------------
-import ACCOUNT_OBJECT from '@salesforce/schema/Account';
-import NAME_FIELD from '@salesforce/schema/Account.Name';
-import WEBSITE_FIELD from '@salesforce/schema/Account.Website';
-//--------------------------------
-
-
-const ACTION_NEW_RECORD = "Create new";
-const ACTION_EDIT_RECORD = "Edit";
-const ACTION_DELETE_RECORD = "Delete";
-
-
-
-
 const COLUMNS = [
     { label: 'ID', fieldName: ID_FIELD.fieldApiName, type: 'text' },
     { label: 'From date', fieldName: FROM_DATE_FIELD.fieldApiName, type: 'date' },
@@ -39,8 +25,6 @@ const COLUMNS = [
     {
         type: 'button', label: 'Detail', typeAttributes:
         {
-            // icon-name="utility:settings",
-
             label: 'Edit ',
             name: 'Edit',
             title: 'editTitle',
@@ -48,25 +32,17 @@ const COLUMNS = [
             value: 'test',
         }
     },
-    // {
-    //     type: 'button', label: 'Detail', typeAttributes:
-    //     {
-    //         label: 'detail -> ',
-    //         name: RECORD_DETAIL,
-    //         title: 'editTitle',
-    //         disabled: false,
-    //         value: 'test',
-    //     }
-    // },
-
 ];
 
 
 
 export default class MaintenanceView extends LightningElement {
+    //VehicleId, obtained from the vehicle detail. Used to query the service data of the current vehicle from the server 
     @api vehicleId;
+    //datatble
     columns = COLUMNS;
-
+    //new maintenance dialog
+    showNew = false;
     @track maintenances;
     @track error;
     @track wireMaintenances = [];
@@ -84,64 +60,45 @@ export default class MaintenanceView extends LightningElement {
         }
     }
 
+    //--------------------------------     begin new maintenance     //--------------------------------
 
+    objectApiName = MAINTENANCCE_OBJECT;
+    fields = [FROM_DATE_FIELD, SERVICE_FIELD];
 
-    // @wire(getRecords) maintenances;
-
-    showNew = false;
+    /**
+     * Show and hide a new maintenance record dialog with lightning-record-edit-form
+     * @param event 
+     */
     handleShowNewDialog(event) {
         if (!this.showNew) {
             this.showNew = true;
         } else {
             this.showNew = false;
         }
-        const inputFields = this.template.querySelectorAll(
-            'lightning-input-field'
-        );
-        if (inputFields) {
-            inputFields.forEach(field => {
-                field.reset();
-            });
-        }
+        const inputFields = this.template.querySelectorAll('lightning-input-field').reset();
+
     }
 
+    /**
+     * Handler to show success message on maintenance creation. Requests updated maintenance data
+     * @param  event 
+     */
 
-
-    objectApiName = MAINTENANCCE_OBJECT;
-    fields = [FROM_DATE_FIELD, SERVICE_FIELD];
-
-    handleMaintenanceCreation(event) {
+    handleSuccess(event) {
         console.log(JSON.stringify(event.detail));
         const toastEvent = new ShowToastEvent({
             title: "Mainteannce created",
             message: "Record ID: " + event.detail.id,
-            // message: "Maintenance sheduled from  " + event.detail.values.fields.Maintenance_from_date__c.value +
-            //     "  due " + event.detail.values.fields.Maintenance_due_date__c.value,
             variant: "success"
         });
         console.log('contact creation success');
         this.dispatchEvent(toastEvent);
-        refreshApex(this.refreshMaintenance);
-        this.showNew = false;
-
-    }
-    handleMaintenanceSave(event) {
-        const recordInputs = event.detail.draftValues.slice().map(draft => {
-            const fields = Object.assign({}, draft);
-            return { fields };
-        });
-        const promises = recordInputs.map(recordInput => updateRecord(recordInput));
-        Promise.all(promises).then(records => {
-            this.dispatchEvent(
-                new ShowToastEvent({
-                    title: 'Success',
-                    message: 'Contact updated',
-                    variant: 'success'
-                })
-            );
-            this.draftValues = [];
+        try {
             refreshApex(this.refreshMaintenance);
-        }).catch(error => {
+        } catch (error) {
+            console.log("error catched " + error.name);
+            console.log(error.message);
+            console.log(error.stack);
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'Error updating record',
@@ -149,62 +106,74 @@ export default class MaintenanceView extends LightningElement {
                     variant: 'error'
                 })
             );
+        } finally {
+            this.showNew = false;
+        }
+
+    }
+    /**
+     * Handler to show error message on maintenance creation, and its reason
+     * @param event 
+     */
+    handleError(event) {
+        console.log(JSON.stringify(event.detail));
+        const toastEvent = new ShowToastEvent({
+            title: "Error on mainteannce creation",
+            message: "Record ID: " + event.detail,
+            variant: "error"
         });
+        console.log('Mainteannce creation error');
+        this.dispatchEvent(toastEvent);
+        this.showNew = false;
     }
 
+    //--------------------------------     end new maintenance     //--------------------------------
 
-
+    //--------------------------------     begin select maintenance ID     //--------------------------------
     miantenanceId = undefined;
+    /**
+     * Select one maintenance from datatble, and get it's ID. Used to CRUD operaton on selected maintenance
+     * @param  event 
+     */
     handleRowAction(event) {
-
         const selectedRow = event.detail.row;
-
         const actionName = event.detail.action.name;
         console.log(actionName + ' row ->   ' + JSON.stringify(selectedRow));
         console.log("ID " + selectedRow.Id);
 
         switch (actionName) {
-
-
             case 'Edit':
                 console.log(selectedRow.Id);
+                //call to the maintenanceEdit componnet
                 this.template.querySelector('c-maintenance-edit').editModal(this.vehicleId, selectedRow.Id);
-
-
                 break;
         }
-
     }
 
-
+    /**
+     * Handling an update call from a maintenanceEdit componet after a successful CRUD operation on a maintenance record. 
+     * Requests updated maintenance data
+     * @param  event 
+     */
     handleUpdate(event) {
         console.log('handle success');
         try {
             refreshApex(this.refreshMaintenance);
         } catch (error) {
-
             console.log("error catched " + error.name);
             console.log(error.message);
             console.log(error.stack);
-
-
-
-
-            // this.dispatchEvent(
-            //     new ShowToastEvent({
-            //         title: 'Error deleting record',
-            //         message: reduceErrors(error).join(', '),
-            //         variant: 'error'
-            //     })
-            // );
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error updating record',
+                    message: error.body.message,
+                    variant: 'error'
+                })
+            );
         }
     }
 
 
-
-    handleClick(event) {
-        console.log('click');
-    }
 
 
 }
