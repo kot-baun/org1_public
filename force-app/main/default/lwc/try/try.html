@@ -1,0 +1,12 @@
+<template>
+	<lightning-card onclick={handleClick}>
+		<p>hello</p>
+		<template if:true={vehicles}>
+			<lightning-datatable key-field="Id" data={vehicles} columns={columns} onrowaction={handleRowAction}>
+			</lightning-datatable>
+		</template>
+		<template if:true={error}>
+			<p>{error}</p>
+		</template>
+	</lightning-card>
+</template>

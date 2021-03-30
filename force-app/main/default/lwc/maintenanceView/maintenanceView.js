@@ -13,15 +13,16 @@ import SERVICE_FIELD from '@salesforce/schema/Maintenance__c.Maintenance_Service
 import VEHICLE_FIELD from '@salesforce/schema/Maintenance__c.Vehicle__c';
 
 import SERVICE_NAME_FIELD from '@salesforce/schema/Maintenance__c.Maintenance_Service__r.Name';
+import getWrappedRecords from '@salesforce/apex/MaintenanceViewController.getWrappedRecords';
 
 
 
 const COLUMNS = [
-    { label: 'ID', fieldName: ID_FIELD.fieldApiName, type: 'text' },
-    { label: 'From date', fieldName: FROM_DATE_FIELD.fieldApiName, type: 'date' },
-    { label: 'Real date', fieldName: ACTUAL_DATE_FIELD.fieldApiName, type: 'date' },
-    { label: 'Status', fieldName: STATUS_FIELD.fieldApiName, type: 'text' },
-    { label: 'Service', fieldName: SERVICE_NAME_FIELD.fieldApiName, type: 'text' },
+    { label: 'ID', fieldName: 'id', type: 'text' },
+    { label: 'From date', fieldName: 'fromDate', type: 'date' },
+    { label: 'Real date', fieldName: 'actualDate', type: 'date' },
+    { label: 'Status', fieldName: 'status', type: 'text' },
+    { label: 'Service', fieldName: 'service', type: 'text' },
     {
         type: 'button', label: 'Detail', typeAttributes:
         {
@@ -47,7 +48,7 @@ export default class MaintenanceView extends LightningElement {
     @track error;
     @track wireMaintenances = [];
     refreshMaintenance;
-    @wire(getRecords, { targetVehicleId: '$vehicleId' })
+    @wire(getWrappedRecords, { targetVehicleId: '$vehicleId' })
     wiredRecord(result) {
         this.refreshMaintenance = result;
         if (result.data) {
@@ -63,7 +64,7 @@ export default class MaintenanceView extends LightningElement {
     //--------------------------------     begin new maintenance     //--------------------------------
 
     objectApiName = MAINTENANCCE_OBJECT;
-    fields = [FROM_DATE_FIELD, SERVICE_FIELD];
+    // fields = [FROM_DATE_FIELD, SERVICE_FIELD];
 
     /**
      * Show and hide a new maintenance record dialog with lightning-record-edit-form
@@ -139,13 +140,13 @@ export default class MaintenanceView extends LightningElement {
         const selectedRow = event.detail.row;
         const actionName = event.detail.action.name;
         console.log(actionName + ' row ->   ' + JSON.stringify(selectedRow));
-        console.log("ID " + selectedRow.Id);
+        console.log("ID " + selectedRow.id);
 
         switch (actionName) {
             case 'Edit':
-                console.log(selectedRow.Id);
+                console.log(selectedRow.id);
                 //call to the maintenanceEdit componnet
-                this.template.querySelector('c-maintenance-edit').editModal(this.vehicleId, selectedRow.Id);
+                this.template.querySelector('c-maintenance-edit').editModal(this.vehicleId, selectedRow.id);
                 break;
         }
     }

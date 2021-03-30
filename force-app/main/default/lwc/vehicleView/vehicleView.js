@@ -1,16 +1,18 @@
 
 import { LightningElement, wire, track, api } from 'lwc';
-import getRecords from '@salesforce/apex/VehicleViewController.getRecords';
-import ID_FIELD from '@salesforce/schema/Vehicle__c.Id';
-import MODEL_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_model_description__c';
-import PLATE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_plate_number__c';
+// import getRecords from '@salesforce/apex/VehicleViewController.getRecords';
+// import ID_FIELD from '@salesforce/schema/Vehicle__c.Id';
+// import MODEL_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_model_description__c';
+// import PLATE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_plate_number__c';
 
-import DRIVER_NAME_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_driver__r.Name';
-import DRIVER_PHONE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_driver_contact_phone_reader__c';
-import STATUS_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Status__c';
-import TYPE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Type__c';
-import ACTUAL_DATE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Last_Maintenance_Date__c';
+// import DRIVER_NAME_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_driver__r.Name';
+// import DRIVER_PHONE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_driver_contact_phone_reader__c';
+// import STATUS_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Status__c';
+// import TYPE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Type__c';
+// import ACTUAL_DATE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Last_Maintenance_Date__c';
+// import getWrappedRecords from '@salesforce/apex/VehicleViewController.getWrappedRecords';
 
+import getWrappedRecords from '@salesforce/apex/VehicleViewController.getWrappedRecords';
 
 //filter
 const ALL = 'All';
@@ -26,12 +28,12 @@ const filterOptions = [
 //datatable
 const RECORD_DETAIL = 'recordDetail';
 const COLUMNS = [
-    { label: 'ID', fieldName: ID_FIELD.fieldApiName, type: 'text' },
-    { label: 'Model description', fieldName: MODEL_FIELD.fieldApiName, type: 'text' },
-    { label: 'Plate number', fieldName: PLATE_FIELD.fieldApiName, type: 'text', editable: true },
-    { label: 'Status', fieldName: STATUS_FIELD.fieldApiName, type: 'text' },
-    { label: 'Date', fieldName: ACTUAL_DATE_FIELD.fieldApiName, type: 'date' },
-    { label: 'Driver name', fieldName: DRIVER_NAME_FIELD.fieldApiName, type: 'text' },
+    { label: 'ID', fieldName: 'id', type: 'text' },
+    { label: 'Model description', fieldName: 'vehicleDescription', type: 'text' },
+    { label: 'Plate number', fieldName: 'plateNumber', type: 'text', editable: true },
+    { label: 'Status', fieldName: 'status', type: 'text' },
+    { label: 'Date', fieldName: 'lastMaintenanceDate', type: 'date' },
+    { label: 'Driver name', fieldName: 'driverName', type: 'text' },
     {
         type: 'button', label: 'Detail', typeAttributes:
         {
@@ -56,10 +58,10 @@ export default class VehicleView extends LightningElement {
     @track vehicles;
     @track error;
 
-    // refresh;
-    @wire(getRecords, { status: '$filterValue' })
+    refresh;
+    @wire(getWrappedRecords, { status: '$filterValue' })
     wiredRecord(result) {
-        // this.refresh = result;
+        this.refresh = result;
         if (result.data) {
             this.vehicles = result.data;
             this.error = undefined;
@@ -74,6 +76,7 @@ export default class VehicleView extends LightningElement {
         return filterOptions;
     }
 
+
     //--------------------------------     handlers     //--------------------------------
     /**
      * Select one vehicle from datatble, and get it's ID. Fire an event to send a selected vehicle Id to the vehicleContainer
@@ -83,7 +86,7 @@ export default class VehicleView extends LightningElement {
         const selectedRow = event.detail.row;
         const actionName = event.detail.action.name;
         console.log(actionName + ' row ->   ' + JSON.stringify(selectedRow));
-        console.log('data ' + JSON.stringify(this.vehicles.find(v => v.Id === selectedRow.Id)));
+        console.log('data ' + JSON.stringify(this.vehicles.find(v => v.id === selectedRow.id)));
         switch (actionName) {
 
             case RECORD_DETAIL:
@@ -91,7 +94,7 @@ export default class VehicleView extends LightningElement {
                 // This component wants to emit a vehicleselected event to its parent
                 const evt = new CustomEvent('vehicleselected', {
                     // detail: event.detail
-                    detail: this.vehicles.find(v => v.Id === selectedRow.Id)
+                    detail: this.vehicles.find(v => v.id === selectedRow.id)
                 });
                 // Fire the event from vehicleView
                 this.dispatchEvent(evt);

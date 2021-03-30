@@ -1,9 +1,10 @@
 public with sharing class VehicleViewController {
-	private static final String ALL = 'All';
-	private static final String NOT_AVAILABLE_STATUS = 'Not Available';
-	private static final String AT_SERVICE_STATUS = 'At Service';
-	private static final String AVAILABLE_STATUS = 'Available';
+	public static final String ALL = 'All';
+	public static final String NOT_AVAILABLE_STATUS = 'Not Available';
+	public static final String AT_SERVICE_STATUS = 'At Service';
+	public static final String AVAILABLE_STATUS = 'Available';
 
+	@AuraEnabled(cacheable=true)
 	public static List<Vehicle__c> getRecords(String status) {
 		if (status != ALL) {
 			return [
