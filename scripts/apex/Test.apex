@@ -1,8 +1,10 @@
-Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-String[] toAddresses = new List<String>{ 'kamkaliev@gmail.com' };
-mail.setToAddresses(toAddresses);
-mail.setSubject('Vehicle manage - email to driver');
-mail.setPlainTextBody('test email');
-System.debug(mail);
+List<Maintenance__c> resList = [SELECT Id, Maintenance_Vehicle_Descriptions__c FROM Maintenance__c];
 
-List<Messaging.SendEmailResult> results = Messaging.sendEmail(new List<Messaging.SingleEmailMessage>{ mail });
+for (Maintenance__c value : resList) {
+	String s = value.Maintenance_Vehicle_Descriptions__c + '   ' + Approval.isLocked(value.Id);
+
+	if (Approval.isLocked(value.Id)) {
+		s += '  unlock is ' + Approval.unlock(value.Id);
+	}
+	System.debug(s);
+}

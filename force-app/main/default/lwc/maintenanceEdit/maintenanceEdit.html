@@ -39,7 +39,7 @@
 				<lightning-record-edit-form
 					record-id={maintenanceId}
 					object-api-name={objectApiName}
-					onsuccess={handleMaintenanceCreation}
+					onsuccess={handleSuccess}
 				>
 					<!-- modal body start -->
 					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
@@ -56,17 +56,26 @@
 					</div>
 					<!-- modal footer start-->
 					<footer class="slds-modal__footer">
-						<lightning-button class="slds-m-top_small" type="submit" label="Create new"> </lightning-button>
+						<lightning-button
+							variant="success"
+							icon-name="utility:check"
+							class="slds-m-top_small"
+							type="submit"
+							label="Edit"
+						>
+						</lightning-button>
 
 						<lightning-button
 							variant="destructive"
+							class="slds-m-top_small"
 							label="Delete"
 							icon-name="utility:delete"
 							icon-position="right"
 							onclick={handlerManintenanceDelete}
 						>
 						</lightning-button>
-						<button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+						<lightning-button label="Cancel" class="slds-m-top_small" onclick={closeModal}>
+						</lightning-button>
 					</footer>
 				</lightning-record-edit-form>
 			</div>

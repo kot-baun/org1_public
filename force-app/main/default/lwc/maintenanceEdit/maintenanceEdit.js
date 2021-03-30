@@ -51,7 +51,7 @@ export default class ModalLwc extends NavigationMixin(LightningElement) {
 
 
     handlerManintenanceDelete(event) {
-        deleteRecord(this.recordId)
+        deleteRecord(this.maintenanceId)
             .then(() => {
                 this.dispatchEvent(
                     new ShowToastEvent({
@@ -60,16 +60,10 @@ export default class ModalLwc extends NavigationMixin(LightningElement) {
                         variant: 'success'
                     })
                 );
-                // Navigate to a record home page after
-                // the record is deleted, such as to the
-                // contact home page
-                this[NavigationMixin.Navigate]({
-                    type: 'standard__objectPage',
-                    attributes: {
-                        objectApiName: 'Contact',
-                        actionName: 'home',
-                    },
-                });
+
+                this.closeModal();
+                this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
+
             })
             .catch(error => {
                 this.dispatchEvent(
@@ -85,18 +79,18 @@ export default class ModalLwc extends NavigationMixin(LightningElement) {
 
 
 
-    handleMaintenanceCreation(event) {
+    handleSuccess(event) {
         console.log(JSON.stringify(event.detail));
         const toastEvent = new ShowToastEvent({
             title: "Mainteannce created",
             message: "Record ID: " + event.detail.id,
-            // message: "Maintenance sheduled from  " + event.detail.values.fields.Maintenance_from_date__c.value +
-            //     "  due " + event.detail.values.fields.Maintenance_due_date__c.value,
+
             variant: "success"
         });
         console.log('maintenance creation success');
         this.dispatchEvent(toastEvent);
-
+        this.closeModal();
+        this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
     }
 
 

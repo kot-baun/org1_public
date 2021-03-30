@@ -1,6 +1,6 @@
 import { LightningElement, wire, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'
-
+import { refreshApex } from '@salesforce/apex';
 
 import getRecords from '@salesforce/apex/MaintenanceViewController.getRecords';
 // import { getRecord, getFieldValue } from "lightning/uiRecordApi";
@@ -39,6 +39,8 @@ const COLUMNS = [
     {
         type: 'button', label: 'Detail', typeAttributes:
         {
+            // icon-name="utility:settings",
+
             label: 'Edit ',
             name: 'Edit',
             title: 'editTitle',
@@ -68,14 +70,17 @@ export default class MaintenanceView extends LightningElement {
     @track maintenances;
     @track error;
     @track wireMaintenances = [];
-
+    refreshMaintenance;
     @wire(getRecords, { targetVehicleId: '$vehicleId' })
-    wiredRecord({ data, error }) {
-        if (data) {
-            this.maintenances = data;
+    wiredRecord(result) {
+        this.refreshMaintenance = result;
+        if (result.data) {
+            this.maintenances = result.data;
+            this.error = undefined;
         }
-        if (error) {
-            this.error = error;
+        if (result.error) {
+            this.maintenances = undefined;
+            this.error = result.error;
         }
     }
 
@@ -116,8 +121,8 @@ export default class MaintenanceView extends LightningElement {
         });
         console.log('contact creation success');
         this.dispatchEvent(toastEvent);
-        refreshApex(this.maintenances);
-
+        refreshApex(this.refreshMaintenance);
+        this.showNew = false;
 
     }
     handleMaintenanceSave(event) {
@@ -135,7 +140,7 @@ export default class MaintenanceView extends LightningElement {
                 })
             );
             this.draftValues = [];
-            return refreshApex(this.contacts);
+            refreshApex(this.refreshMaintenance);
         }).catch(error => {
             this.dispatchEvent(
                 new ShowToastEvent({
@@ -170,6 +175,33 @@ export default class MaintenanceView extends LightningElement {
         }
 
     }
+
+
+    handleUpdate(event) {
+        console.log('handle success');
+        try {
+            refreshApex(this.refreshMaintenance);
+        } catch (error) {
+
+            console.log("error catched " + error.name);
+            console.log(error.message);
+            console.log(error.stack);
+
+
+
+
+            // this.dispatchEvent(
+            //     new ShowToastEvent({
+            //         title: 'Error deleting record',
+            //         message: reduceErrors(error).join(', '),
+            //         variant: 'error'
+            //     })
+            // );
+        }
+    }
+
+
+
     handleClick(event) {
         console.log('click');
     }

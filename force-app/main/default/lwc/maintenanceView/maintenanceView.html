@@ -23,20 +23,19 @@
 		</template>
 
 		<!-- ************************************************************** -->
-		<c-maintenance-edit label="Edit" vehicle-id={vehicleId} maintenance-id={maintenanceId}></c-maintenance-edit>
+		<c-maintenance-edit
+			label="Edit"
+			vehicle-id={vehicleId}
+			maintenance-id={maintenanceId}
+			onupdate={handleUpdate}
+		></c-maintenance-edit>
 		<!-- ************************************************************** -->
 
 		<div>
 			<template if:true={maintenances}> maintenance exist </template>
 			<lightning-button></lightning-button>
 			<template if:true={maintenances}>
-				<lightning-datatable
-					key-field="Id"
-					data={maintenances}
-					columns={columns}
-					onsave={handleMaintenanceSave}
-					onrowaction={handleRowAction}
-				>
+				<lightning-datatable key-field="Id" data={maintenances} columns={columns} onrowaction={handleRowAction}>
 				</lightning-datatable>
 			</template>
 		</div>
