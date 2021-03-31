@@ -1,9 +1,7 @@
 import { LightningElement, api, track } from 'lwc';
 import { deleteRecord } from 'lightning/uiRecordApi';
-import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
 import { successToast, errorToast } from 'c/toastMessage';
-// import { ToastMessage } from 'c/toastMessage';
 
 import MAINTENANCCE_OBJECT from '@salesforce/schema/Maintenance__c';
 
@@ -30,13 +28,12 @@ export default class MaintenanceEdit extends NavigationMixin(LightningElement) {
         deleteRecord(this.maintenanceId)
             .then(() => {
                 successToast('', this.maintenanceId, 'deleted');
-                // () => successToast('', this.maintenanceId, 'deleted');
                 this.closeModal();
                 //call update maintenance data on maintenanceView
                 this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
             })
             .catch(error => {
-                this.errorToast('deleting', error.message);
+                errorToast('deleting', error.message);
             });
     }
 
@@ -44,10 +41,15 @@ export default class MaintenanceEdit extends NavigationMixin(LightningElement) {
      * Handler to show success message on maintenance update. Requests updated maintenance data to view   
      */
     handleSuccess(event) {
-        this.successToast('maintenance created', event.detail.id);
-        this.closeModal();
-        //call update maintenance data on maintenanceView
-        this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
+        try {
+            successToast('maintenance update', event.detail.id);
+            this.closeModal();
+            //call update maintenance data on maintenanceView
+            this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
+        } catch (error) {
+            console.log(error);
+            console.log(JSON.stringify(error));
+        }
     }
 
     /**
@@ -55,31 +57,14 @@ export default class MaintenanceEdit extends NavigationMixin(LightningElement) {
      * @param event 
      */
     handleError(event) {
-        this.errorToast('on mainteannce edit', event.detail);
+        errorToast('on mainteannce edit', event.detail);
         this.dispatchEvent(toastEvent);
         this.showNew = false;
     }
 
 
 
-    // successToast(title = '', ID = '', message = '') {
-    //     this.dispatchEvent(
-    //         new ShowToastEvent({
-    //             title: `Success ${title}`,
-    //             message: `Record ID${ID} ${message}`,
-    //             variant: 'success'
-    //         })
-    //     );
-    // }
-    errorToast(title = '', message = '') {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: `Error ${title}`,
-                message: message,
-                variant: 'error'
-            })
-        );
-    }
+
 
 
 }

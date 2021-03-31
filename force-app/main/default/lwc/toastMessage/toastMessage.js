@@ -1,12 +1,16 @@
 import { LightningElement } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
-// export default class ToastMessage extends LightningElement {
+// export { successToast, errorToast };
 
+/**
+ * Used on CRUD operaions. Show success toast message, with CRUD record ID
+ * @param {String} title mesage,added to default title 
+ * @param ID record ID
+ * @param message 
+ */
 
-
-const successToast = (title = '', ID = '', message = '') => {
-    console.log('point1');
+export function successToast(title = '', ID = '', message = '') {
     dispatchEvent(
         new ShowToastEvent({
             title: `Success ${title}`,
@@ -14,10 +18,15 @@ const successToast = (title = '', ID = '', message = '') => {
             variant: 'success'
         })
     );
-    console.log('point2');
 }
-const errorToast = (title = '', message = '') => {
-    this.dispatchEvent(
+
+/**
+ * Show error toast message
+ * @param  title 
+ * @param  message 
+ */
+export function errorToast(title = '', message = '') {
+    dispatchEvent(
         new ShowToastEvent({
             title: `Error ${title}`,
             message: message,
@@ -26,8 +35,4 @@ const errorToast = (title = '', message = '') => {
     );
 }
 
-export { successToast, errorToast };
 
-
-
-// }

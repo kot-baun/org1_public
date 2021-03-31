@@ -1,6 +1,7 @@
 import { LightningElement, wire, api, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent'
 import { refreshApex } from '@salesforce/apex';
+import { successToast, errorToast } from 'c/toastMessage';
 
 import MAINTENANCCE_OBJECT from '@salesforce/schema/Maintenance__c';
 import getWrappedRecords from '@salesforce/apex/MaintenanceViewController.getWrappedRecords';
@@ -52,10 +53,10 @@ export default class MaintenanceView extends LightningElement {
      */
     handleSuccess(event) {
         try {
-            this.successToast('maintenance created', event.detail.id);
+            successToast('maintenance created', event.detail.id);
             refreshApex(this.refreshMaintenance);
         } catch (error) {
-            this.dispatchEvent('maintenance creation', error.message);
+            errorToast('on record view update', error.message);
         } finally {
             this.showNew = false;
         }
@@ -65,7 +66,7 @@ export default class MaintenanceView extends LightningElement {
      * @param event 
      */
     handleError(event) {
-        this.errorToast('on mainteannce creation', event.detail);
+        errorToast('on mainteannce creation', event.detail);
         this.showNew = false;
     }
     /**
@@ -90,27 +91,8 @@ export default class MaintenanceView extends LightningElement {
         try {
             refreshApex(this.refreshMaintenance);
         } catch (error) {
-            this.errorToast('on update records after CRUD', error.message);
+            errorToast('on update records after CRUD', error.message);
         }
-    }
-
-    successToast(title = '', ID = '', message = '') {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: `Success ${title}`,
-                message: `Record ID${ID} ${message}`,
-                variant: 'success'
-            })
-        );
-    }
-    errorToast(title = '', message = '') {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: `Error ${title}`,
-                message: message,
-                variant: 'error'
-            })
-        );
     }
 
 }

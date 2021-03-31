@@ -1,6 +1,7 @@
 
 import { LightningElement, wire, track, api } from 'lwc';
 import getWrappedRecords from '@salesforce/apex/VehicleViewController.getWrappedRecords';
+import { errorToast } from 'c/toastMessage';
 
 //filter
 const ALL = 'All';
@@ -78,7 +79,7 @@ export default class VehicleView extends LightningElement {
         try {
             this.filterValue = event.detail.value;
         } catch (error) {
-            //todo
+            errorToast('on update records after CRUD', error.message);
         }
 
     }
