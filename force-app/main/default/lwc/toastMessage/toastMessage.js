@@ -3,8 +3,8 @@ import { LightningElement } from 'lwc';
 export default class ToastMessage extends LightningElement {
 
 
-    success(title, ID, message) {
 
+    successToast(title = '', ID = '', message = '') {
         this.dispatchEvent(
             new ShowToastEvent({
                 title: `Success ${title}`,
@@ -12,10 +12,16 @@ export default class ToastMessage extends LightningElement {
                 variant: 'success'
             })
         );
-
-
     }
-
+    errorToast(title = '', message = '') {
+        this.dispatchEvent(
+            new ShowToastEvent({
+                title: `Error ${title}`,
+                message: message,
+                variant: 'error'
+            })
+        );
+    }
 
 
 
