@@ -28,39 +28,31 @@ const filterOptions = [
 //datatable
 const RECORD_DETAIL = 'recordDetail';
 const COLUMNS = [
-    { label: 'ID', fieldName: 'id', type: 'text' },
+    // { label: 'ID', fieldName: 'id', type: 'text' },
     { label: 'Model description', fieldName: 'vehicleDescription', type: 'text' },
     { label: 'Plate number', fieldName: 'plateNumber', type: 'text', editable: true },
     { label: 'Status', fieldName: 'status', type: 'text' },
-    { label: 'Date', fieldName: 'lastMaintenanceDate', type: 'date' },
+    { label: 'Maintenance date', fieldName: 'lastMaintenanceDate', type: 'date' },
     { label: 'Driver name', fieldName: 'driverName', type: 'text' },
     {
-        type: 'button', label: 'Detail', typeAttributes:
-        {
-            label: 'detail >> ',
-            name: RECORD_DETAIL,
-            title: 'editTitle',
-            disabled: false,
-            value: 'test',
-        }
+        type: 'button', label: 'Detail',
+        typeAttributes: { label: 'detail >> ', name: RECORD_DETAIL, title: 'Show vehicle details', },
+        cellAttributes: { alignment: 'right' }
     },
 ];
-
-
-
 
 export default class VehicleView extends LightningElement {
     //datatable
     columns = COLUMNS;
     //combobox selected value
     filterValue = ALL;
+    get filterOptions() { return filterOptions; }
 
     @track vehicles;
     @track error;
 
     refresh;
-    @wire(getWrappedRecords, { status: '$filterValue' })
-    wiredRecord(result) {
+    @wire(getWrappedRecords, { status: '$filterValue' }) wiredRecord(result) {
         this.refresh = result;
         if (result.data) {
             this.vehicles = result.data;
@@ -72,12 +64,6 @@ export default class VehicleView extends LightningElement {
         }
     }
 
-    get filterOptions() {
-        return filterOptions;
-    }
-
-
-    //--------------------------------     handlers     //--------------------------------
     /**
      * Select one vehicle from datatble, and get it's ID. Fire an event to send a selected vehicle Id to the vehicleContainer
      * @param event 
@@ -85,19 +71,12 @@ export default class VehicleView extends LightningElement {
     handleRowAction(event) {
         const selectedRow = event.detail.row;
         const actionName = event.detail.action.name;
-        console.log(actionName + ' row ->   ' + JSON.stringify(selectedRow));
-        console.log('data ' + JSON.stringify(this.vehicles.find(v => v.id === selectedRow.id)));
         switch (actionName) {
-
             case RECORD_DETAIL:
-                console.log(selectedRow.Id);
-                // This component wants to emit a vehicleselected event to its parent
-                const evt = new CustomEvent('vehicleselected', {
-                    // detail: event.detail
+                // Fire the event from vehicleView to vehicleContainer
+                this.dispatchEvent(new CustomEvent('vehicleselected', {
                     detail: this.vehicles.find(v => v.id === selectedRow.id)
-                });
-                // Fire the event from vehicleView
-                this.dispatchEvent(evt);
+                }));
                 break;
         }
     }
@@ -108,13 +87,10 @@ export default class VehicleView extends LightningElement {
      * @param event 
      */
     handleFilter(event) {
-        console.log(JSON.stringify(event.detail));
         try {
             this.filterValue = event.detail.value;
         } catch (error) {
-            console.log("error catched " + error.name);
-            console.log(error.message);
-            console.log(error.stack);
+
         }
 
     }

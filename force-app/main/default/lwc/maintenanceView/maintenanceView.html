@@ -28,7 +28,13 @@
 			<template if:true={maintenances}> maintenance exist </template>
 			<lightning-button></lightning-button>
 			<template if:true={maintenances}>
-				<lightning-datatable key-field="Id" data={maintenances} columns={columns} onrowaction={handleRowAction}>
+				<lightning-datatable
+					key-field="Id"
+					data={maintenances}
+					columns={columns}
+					onrowaction={handleRowAction}
+					hide-checkbox-column
+				>
 				</lightning-datatable>
 			</template>
 		</div>

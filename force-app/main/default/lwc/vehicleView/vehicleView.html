@@ -12,7 +12,13 @@
 			</div>
 
 			<template if:true={vehicles}>
-				<lightning-datatable key-field="Id" data={vehicles} columns={columns} onrowaction={handleRowAction}>
+				<lightning-datatable
+					key-field="Id"
+					data={vehicles}
+					columns={columns}
+					onrowaction={handleRowAction}
+					hide-checkbox-column
+				>
 				</lightning-datatable>
 			</template>
 			<template if:true={error}>
