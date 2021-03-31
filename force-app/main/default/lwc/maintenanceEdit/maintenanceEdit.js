@@ -2,6 +2,8 @@ import { LightningElement, api, track } from 'lwc';
 import { deleteRecord } from 'lightning/uiRecordApi';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { NavigationMixin } from 'lightning/navigation';
+import { successToast, errorToast } from 'c/toastMessage';
+// import { ToastMessage } from 'c/toastMessage';
 
 import MAINTENANCCE_OBJECT from '@salesforce/schema/Maintenance__c';
 
@@ -27,7 +29,8 @@ export default class MaintenanceEdit extends NavigationMixin(LightningElement) {
     handlerManintenanceDelete(event) {
         deleteRecord(this.maintenanceId)
             .then(() => {
-                this.successToast('', this.maintenanceId, 'deleted');
+                successToast('', this.maintenanceId, 'deleted');
+                // () => successToast('', this.maintenanceId, 'deleted');
                 this.closeModal();
                 //call update maintenance data on maintenanceView
                 this.dispatchEvent(new CustomEvent("update", { detail: 'update' }));
@@ -59,15 +62,15 @@ export default class MaintenanceEdit extends NavigationMixin(LightningElement) {
 
 
 
-    successToast(title = '', ID = '', message = '') {
-        this.dispatchEvent(
-            new ShowToastEvent({
-                title: `Success ${title}`,
-                message: `Record ID${ID} ${message}`,
-                variant: 'success'
-            })
-        );
-    }
+    // successToast(title = '', ID = '', message = '') {
+    //     this.dispatchEvent(
+    //         new ShowToastEvent({
+    //             title: `Success ${title}`,
+    //             message: `Record ID${ID} ${message}`,
+    //             variant: 'success'
+    //         })
+    //     );
+    // }
     errorToast(title = '', message = '') {
         this.dispatchEvent(
             new ShowToastEvent({
