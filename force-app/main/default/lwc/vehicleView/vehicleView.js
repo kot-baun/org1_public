@@ -1,17 +1,5 @@
 
 import { LightningElement, wire, track, api } from 'lwc';
-// import getRecords from '@salesforce/apex/VehicleViewController.getRecords';
-// import ID_FIELD from '@salesforce/schema/Vehicle__c.Id';
-// import MODEL_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_model_description__c';
-// import PLATE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_plate_number__c';
-
-// import DRIVER_NAME_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_driver__r.Name';
-// import DRIVER_PHONE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_driver_contact_phone_reader__c';
-// import STATUS_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Status__c';
-// import TYPE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Type__c';
-// import ACTUAL_DATE_FIELD from '@salesforce/schema/Vehicle__c.Vehicle_Last_Maintenance_Date__c';
-// import getWrappedRecords from '@salesforce/apex/VehicleViewController.getWrappedRecords';
-
 import getWrappedRecords from '@salesforce/apex/VehicleViewController.getWrappedRecords';
 
 //filter
@@ -90,7 +78,7 @@ export default class VehicleView extends LightningElement {
         try {
             this.filterValue = event.detail.value;
         } catch (error) {
-
+            //todo
         }
 
     }
